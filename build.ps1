@@ -26,7 +26,7 @@ $sources = @(Get-ChildItem -LiteralPath (Join-Path $projectDir 'src') -Recurse -
 & $compiler --release 21 -encoding UTF-8 -proc:none -classpath $classPath -d $classesDir @sources
 if ($LASTEXITCODE -ne 0) { throw 'Kompilierung fehlgeschlagen.' }
 Copy-Item -Path (Join-Path $projectDir 'resources\*') -Destination $classesDir -Recurse -Force
-$outputJar = Join-Path $projectDir 'Mermil-Paradis-0.3.0-release.jar'
+$outputJar = Join-Path $projectDir 'Mermil-Paradis-0.3.1-release.jar'
 & $jarTool --create --file $outputJar -C $classesDir .
 if ($LASTEXITCODE -ne 0) { throw 'JAR konnte nicht erstellt werden.' }
 Write-Output "Erstellt: $outputJar"

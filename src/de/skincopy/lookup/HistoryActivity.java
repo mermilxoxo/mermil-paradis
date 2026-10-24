@@ -61,12 +61,15 @@ public final class HistoryActivity extends SimpleActivity {
         super.initialize(parent);
         addText("MP", "mermil-monogram", NamedTextColor.WHITE);
         addText("MERMIL", "mermil-title", NamedTextColor.LIGHT_PURPLE);
-        addText("P A R A D I S   /   CLIENT TOOLS", "mermil-subtitle", NamedTextColor.GRAY);
-        addText("0.3.0", "mermil-version", NamedTextColor.GRAY);
+        addText("PARADIS", "mermil-subtitle", NamedTextColor.GRAY);
+        addText("0.3.1", "mermil-version", NamedTextColor.GRAY);
         nav("History", "history", "nav-one");
         nav("Profil", "profile", "nav-two");
         nav("Skins", "skins", "nav-three");
         nav("Einstellungen", "settings", "nav-four");
+        boolean playerTab = tab.equals("history") || tab.equals("profile");
+        searchButton = null;
+        if (playerTab) {
         TextFieldWidget field = new TextFieldWidget();
         field.maximalLength(36);
         field.placeholder(Component.text("Spielername / UUID"));
@@ -79,10 +82,12 @@ public final class HistoryActivity extends SimpleActivity {
         searchButton.addId("mermil-search");
         searchButton.setEnabled(canSearch());
         document().addChild(searchButton);
+        }
         statusWidget = addText(status, "mermil-status", NamedTextColor.WHITE);
         String identity = selectedUuid == null ? "Noch kein Spieler ausgewaehlt."
                 : (selectedName == null ? "Spieler" : selectedName) + "  /  " + selectedUuid;
-        addText(identity, "mermil-identity", NamedTextColor.GRAY);
+        if (playerTab) addText(selectedUuid == null ? "Suche einen Spieler, um loszulegen."
+                : selectedName == null ? selectedUuid.toString() : selectedName, "mermil-identity", NamedTextColor.WHITE);
 
         VerticalListWidget<Widget> list = new VerticalListWidget<>();
         list.addId("mermil-list");
@@ -95,9 +100,9 @@ public final class HistoryActivity extends SimpleActivity {
             default -> history(list);
         }
         ScrollWidget scroll = new ScrollWidget(list);
-        scroll.addId("mermil-scroll");
+        scroll.addId("mermil-scroll", playerTab ? "mermil-player-content" : "mermil-tools-content");
         document().addChild(scroll);
-        addText("MERMIL PARADIS  |  Dein Client. Deine Tools.  |  ESC: Zurueck", "mermil-footer", NamedTextColor.GRAY);
+
         if (!started) {
             started = true;
             observedBusy = addon.busy();
@@ -112,7 +117,7 @@ public final class HistoryActivity extends SimpleActivity {
     private ComponentWidget addText(String text, String id, TextColor color) {
         ComponentWidget widget = ComponentWidget.text(text, color);
         widget.addId(id);
-        widget.scaleToFit().set(true);
+        widget.clippingTextTooltip().set(true);
         document().addChild(widget);
         return widget;
     }
@@ -128,14 +133,14 @@ public final class HistoryActivity extends SimpleActivity {
     }
     private static void line(VerticalListWidget<Widget> list, String text, TextColor color) {
         ComponentWidget widget = ComponentWidget.text(text, color);
-        widget.scaleToFit().set(true);
+        widget.clippingTextTooltip().set(true);
         widget.addId("mermil-line");
         list.addChild(widget);
     }
     private static void title(VerticalListWidget<Widget> list, String text) {
         ComponentWidget widget = ComponentWidget.text(text, NamedTextColor.LIGHT_PURPLE);
         widget.addId("mermil-section");
-        widget.scaleToFit().set(true);
+        widget.clippingTextTooltip().set(true);
         list.addChild(widget);
     }
     private static ButtonWidget button(VerticalListWidget<Widget> list, String label, Runnable click, boolean enabled) {
@@ -146,7 +151,7 @@ public final class HistoryActivity extends SimpleActivity {
         return widget;
     }
     private void history(VerticalListWidget<Widget> list) {
-        title(list, "USER HISTORY");
+        title(list, "Namenshistorie");
         if (!on(config().lookupEnabled())) {
             line(list, "History ist deaktiviert. In Einstellungen wieder einschalten.", NamedTextColor.GRAY); return;
         }
@@ -169,13 +174,14 @@ public final class HistoryActivity extends SimpleActivity {
         if (on(config().compareHistory())) {
             List<HistoryComparison.Row> rows = HistoryComparison.compare(results);
             long both = rows.stream().filter(HistoryComparison.Row::both).count();
-            title(list, rows.size() + " NAMEN / " + both + " IN BEIDEN QUELLEN");
+            title(list, rows.size() + " Namen  /  " + both + " in beiden Quellen");
             for (HistoryComparison.Row row : rows) {
                 String laby = row.laby().isEmpty() ? HistoryComparison.absence(results.get(Source.LABY), sourceEnabled(Source.LABY))
                         : "gefunden (" + row.laby().size() + ")";
                 String rebel = row.rebel().isEmpty() ? HistoryComparison.absence(results.get(Source.REBEL), sourceEnabled(Source.REBEL))
                         : "gefunden (" + row.rebel().size() + ")";
-                line(list, row.name() + " | Laby: " + laby + " | Rebel: " + rebel,
+                title(list, row.name());
+                line(list, "Laby: " + laby + "    /    Rebel: " + rebel,
                         row.both() ? NamedTextColor.GREEN : NamedTextColor.WHITE);
                 if (!on(config().compactHistory())) {
                     for (Name name : row.laby()) line(list, "  Laby - geaendert: "
@@ -205,7 +211,7 @@ public final class HistoryActivity extends SimpleActivity {
         line(list, "Abgleich ohne Gross-/Kleinschreibung. Profil-Links und Kopieren: Bereich Profil.", NamedTextColor.GRAY);
     }
     private void profile(VerticalListWidget<Widget> list) {
-        title(list, "PROFIL / SCHNELLAKTIONEN");
+        title(list, "Profil");
         if (!on(config().quickActionsEnabled())) {
             line(list, "Profil-Schnellaktionen sind in Einstellungen deaktiviert.", NamedTextColor.GRAY); return;
         }
@@ -215,13 +221,17 @@ public final class HistoryActivity extends SimpleActivity {
         UUID id = selectedUuid;
         String name = selectedName;
         String namemc = "https://namemc.com/profile/" + id;
+        line(list, "UUID: " + id, NamedTextColor.GRAY);
+        title(list, "Kopieren");
         button(list, "Spielername kopieren", () -> copy(name), name != null);
         button(list, "UUID kopieren", () -> copy(id.toString()), true);
         button(list, "NameMC-Profil-Link kopieren", () -> copy(namemc), true);
+        title(list, "Profilseiten im Browser");
         button(list, "NameMC im Browser oeffnen", () -> open(namemc), true);
         button(list, "Laby.net im Browser oeffnen", () -> open("https://laby.net/@" + name), name != null);
         button(list, "Crafty im Browser oeffnen", () -> open("https://crafty.gg/@" + name), name != null);
         button(list, "RebelCore Profil-JSON oeffnen", () -> open(RebelCore.profileUrl(id)), true);
+        title(list, "Mehr zu diesem Spieler");
         button(list, "History dieses Spielers anzeigen", () -> {
             tab = "history"; refresh(); if (!historyRequested) loadHistory(generation);
         }, on(config().lookupEnabled()));
@@ -234,7 +244,7 @@ public final class HistoryActivity extends SimpleActivity {
         catch (RuntimeException ignored) { setStatus("Browser konnte nicht geoeffnet werden."); }
     }
     private void skins(VerticalListWidget<Widget> list) {
-        title(list, "DEIN SKIN / WIEDERHERSTELLUNG");
+        title(list, "Skin wiederherstellen");
         line(list, addon.backupDescription(), NamedTextColor.WHITE);
         button(list, addon.busy() ? "Skin-Aenderung laeuft ..." : "Vorherigen Skin wiederherstellen",
                 addon::restorePreviousSkin, addon.enabledNow() && !addon.busy() && addon.previousSkin() != null);
@@ -247,18 +257,23 @@ public final class HistoryActivity extends SimpleActivity {
         toggle(list, "Lokaler Live-Skin-Wechsel", config().liveSkinEnabled());
     }
     private void settings(VerticalListWidget<Widget> list) {
-        title(list, "MERMIL / EINSTELLUNGEN");
+        title(list, "Einstellungen");
         line(list, "Aenderungen werden sofort angewendet und gespeichert.", NamedTextColor.GRAY);
+        title(list, "Spielermenue");
         toggle(list, "Skin-Uebernahme im Mausrad-Menue", config().skinCopyEnabled());
         toggle(list, "User-History", config().lookupEnabled());
         toggle(list, "Profil-Schnellaktionen im Mausrad-Menue", config().quickActionsEnabled());
+        title(list, "Skin und Sicherung");
         toggle(list, "Automatische Skin-Sicherung", config().backupEnabled());
         toggle(list, "Lokaler Live-Skin-Wechsel", config().liveSkinEnabled());
+        title(list, "Datenquellen");
         toggle(list, "History-Quelle: Laby.net", config().labySourceEnabled());
         toggle(list, "History-Quelle: RebelCore", config().rebelSourceEnabled());
+        title(list, "Darstellung und Meldungen");
         toggle(list, "History-Vergleich als Standard", config().compareHistory());
         toggle(list, "Kompakte History (ohne Datumsdetails)", config().compactHistory());
         toggle(list, "Erfolgsmeldungen im Chat", config().chatFeedback());
+        title(list, "Verwaltung");
         button(list, "History-Cache leeren", () -> {
             service.clearCache(); results.clear(); historyRequested = false; generation++;
             setStatus("History-Cache geleert. Naechste Suche fragt die Quellen neu ab.");
@@ -267,11 +282,24 @@ public final class HistoryActivity extends SimpleActivity {
         line(list, "LabyMod-Addon-Einstellungen bieten dieselben Schalter.", NamedTextColor.GRAY);
     }
     private void toggle(VerticalListWidget<Widget> list, String label, ConfigProperty<Boolean> property) {
-        button(list, (on(property) ? "[AN]  " : "[AUS] ") + label, () -> {
-            property.set(!on(property)); addon.saveSettings();
-            generation++; results.clear(); historyRequested = false; refresh();
-        }, true);
+        net.labymod.api.client.gui.screen.widget.widgets.layout.FlexibleContentWidget row =
+                new net.labymod.api.client.gui.screen.widget.widgets.layout.FlexibleContentWidget();
+        row.addId("mermil-setting");
+        ComponentWidget name = ComponentWidget.text(label, NamedTextColor.WHITE);
+        name.addId("mermil-setting-label");
+        name.clippingTextTooltip().set(true);
+        row.addFlexibleContent(name);
+        var control = net.labymod.api.client.gui.screen.widget.widgets.input.SwitchWidget.text("AN", "AUS", value -> {
+            property.set(value); addon.saveSettings();
+            generation++; results.clear(); historyRequested = false;
+            api.minecraft().executeNextTick(this::refresh);
+        });
+        control.setValue(on(property));
+        control.addId("mermil-switch");
+        row.addContent(control);
+        list.addChild(row);
     }
+
     private boolean canSearch() { return addon.enabledNow() && System.currentTimeMillis() >= nextSearch; }
     private void search(String raw) {
         if (!canSearch()) return;

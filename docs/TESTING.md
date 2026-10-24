@@ -1,6 +1,6 @@
 # Testing and current limits
 
-Target: LabyMod 4, Minecraft Java 1.21.11, Java 21. Version: 0.3.0.
+Target: LabyMod 4, Minecraft Java 1.21.11, Java 21. Version: 0.3.1.
 
 ## Reproduce isolated tests
 
@@ -28,7 +28,7 @@ Tests cover:
 - `LiveSkinOverrideTest`: own player only, replacement instances, arm variant,
   preserving cape/elytra and clearing the override. Uses an isolated test double.
 
-These tests passed during development. All 31 production classes passed a JVM
+These tests passed again for the 0.3.1 UI update. All 31 production classes passed a JVM
 verification/load check. A separate headless check confirmed that the installed
 native `DefaultLinkMetaLoader` accepts the three Activity style links, using a
 mocked API context. This is not a rendered UI test.

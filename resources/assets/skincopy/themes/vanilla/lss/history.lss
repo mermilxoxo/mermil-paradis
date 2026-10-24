@@ -1,86 +1,37 @@
-Document {
-    background-color: #15101f;
-}
+Document { background-color: #10121b; }
 .mermil-monogram {
-    left: 12;
-    top: 12;
-    width: 36;
-    height: 36;
-    background-color: #9d4edd;
-    font-size: 18;
-    text-color: white;
-    padding: 6;
+    left: 12; top: 10; width: 26; height: 26;
+    background-color: #7955cc; font-size: 12; padding: 4; text-color: white;
 }
 .mermil-title {
-    left: 58;
-    right: 70;
-    top: 12;
-    height: 22;
-    font-size: 22;
-    text-color: #ee9cfa;
+    left: 46; right: 65; top: 10; height: 14;
+    font-size: 14; text-color: #f0ecff;
 }
-.mermil-subtitle {
-    left: 59;
-    right: 14;
-    top: 39;
-    height: 10;
-    text-color: #ba9dc9;
-}
-.mermil-version {
-    right: 14;
-    top: 16;
-    width: 42;
-    height: 12;
-}
-.mermil-nav {
-    top: 59;
-    height: 21;
-}
+.mermil-subtitle { left: 47; right: 65; top: 26; height: 10; text-color: #a49bbd; }
+.mermil-version { right: 12; top: 16; width: 40; height: 12; text-color: #a49bbd; }
+.mermil-nav { top: 44; height: 22; background-color: #202330; }
 .nav-one { left: 12; right: 76%; }
 .nav-two { left: 26%; right: 51%; }
 .nav-three { left: 51%; right: 26%; }
 .nav-four { left: 76%; right: 12; }
-.mermil-nav-active {
-    background-color: #7436a8;
-    text-color: #ffb1eb;
+.mermil-nav-active { background-color: #7955cc; text-color: white; }
+.mermil-input { left: 12; right: 90; top: 76; height: 22; background-color: #202330; }
+.mermil-search { right: 12; width: 72; top: 76; height: 22; background-color: #7955cc; }
+.mermil-identity { left: 14; right: 14; top: 104; height: 12; text-color: #d5c9f4; }
+.mermil-status {
+    left: 12; right: 12; bottom: 8; height: 16;
+    background-color: #202330; padding-left: 6; text-color: #c4bdd6;
 }
-.mermil-input {
-    left: 12;
-    right: 28%;
-    top: 90;
-    height: 20;
-    background-color: #251c35;
-}
-.mermil-search {
-    left: 74%;
-    right: 12;
-    top: 90;
-    height: 20;
-    background-color: #7436a8;
-}
-.mermil-status { left: 12; right: 12; top: 117; height: 11; }
-.mermil-identity { left: 12; right: 12; top: 132; height: 10; }
-.mermil-scroll {
-    left: 12;
-    right: 12;
-    top: 153;
-    bottom: 29;
-    background-color: #1d1629;
-}
+.mermil-scroll { left: 12; right: 12; bottom: 30; background-color: #171a26; }
+.mermil-player-content { top: 122; }
+.mermil-tools-content { top: 76; }
 .mermil-list { width: 100%; height: fit-content; }
-.mermil-line { width: 100%; height: 12; }
+.mermil-line { width: 100%; height: 18; padding-left: 8; padding-right: 8; text-color: #b7b5c6; }
 .mermil-section {
-    width: 100%;
-    height: 17;
-    text-color: #ee9cfa;
-    background-color: #2b1b3b;
-    padding-left: 4;
+    width: 100%; height: 24; padding-left: 8;
+    text-color: #ded3ff; background-color: #232334;
 }
-.mermil-action { width: 100%; height: 22; }
-.mermil-footer {
-    left: 12;
-    right: 12;
-    bottom: 10;
-    height: 10;
-    text-color: #ba9dc9;
-}
+.mermil-action { width: 100%; height: 25; background-color: #252936; }
+.mermil-setting { width: 100%; height: 28; padding-left: 8; padding-right: 8; background-color: #202330; }
+.mermil-setting-label { height: 28; padding-right: 8; }
+.mermil-switch { width: 42; height: 20; margin-top: 4; }

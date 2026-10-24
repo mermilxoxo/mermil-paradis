@@ -1,9 +1,16 @@
 # Mermil Paradis
 
 Open-Source-Addon fuer **LabyMod 4 / Minecraft Java 1.21.11**.
-Aktueller Quellstand: **0.3.0, experimentell**. Lizenz: [MIT](LICENSE).
+Aktueller Quellstand: **0.3.1, experimentell**. Lizenz: [MIT](LICENSE).
 
 ![Mermil icon](resources/assets/skincopy/textures/mermil.png)
+
+## Neue Oberflaeche in 0.3.1
+
+Kompakter Kopfbereich, Suche nur in History/Profil und mehr Platz fuer Inhalte.
+Namenseintraege haben eigene Ueberschriften; Profilaktionen und Einstellungen
+sind nach Aufgabe gruppiert. Einstellungen verwenden native Ein-/Aus-Schalter.
+Lange Texte behalten ihre Schriftgroesse und zeigen den vollen Inhalt beim Hover.
 
 ## Funktionen
 
@@ -47,7 +54,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 Die Ausfuehrungsoption gilt nur fuer diesen Prozess. `build.ps1` sucht die
 LabyMod-Installation unter `%APPDATA%/LabyMod`, kopiert benoetigte Bibliotheken
 in den ignorierten Ordner `build/compile-deps` und erzeugt
-`Mermil-Paradis-0.3.0-release.jar`. Installierte Client-Dateien werden nicht veraendert.
+`Mermil-Paradis-0.3.1-release.jar`. Installierte Client-Dateien werden nicht veraendert.
 Abhaengigkeiten werden weder heruntergeladen noch in diesem Repository mitgeliefert.
 Dies ist kein Gradle-Projekt und kein unabhaengig startbares Java-Programm.
 
@@ -78,7 +85,7 @@ Sicherungen sind nach Account getrennt, mit einer Grenze von 32 Accounts.
 Beim Wiederherstellen wird der gerade aktive Skin zur Rueckkehr gesichert.
 
 Eine Sicherung entsteht erst vor einer **neuen Uebernahme mit aktivierter Sicherung**.
-Versionen vor 0.3.0 haben den vorherigen Skin nicht gespeichert. Diese alten
+Versionen vor 0.3.1 haben den vorherigen Skin nicht gespeichert. Diese alten
 Aenderungen lassen sich nicht rueckwirkend wiederherstellen. Kann kein aktiver
 Account-Skin gesichert werden, etwa ein Standard-Skin ohne passende Textur,
 wird die Uebernahme bei aktivierter Sicherung abgebrochen.
