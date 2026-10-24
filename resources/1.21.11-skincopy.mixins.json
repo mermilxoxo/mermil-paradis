@@ -1,0 +1,8 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_21",
+  "package": "de.skincopy.v1_21_11.mixins",
+  "client": ["MixinAbstractClientPlayerSkin"],
+  "injectors": {"defaultRequire": 1}
+}

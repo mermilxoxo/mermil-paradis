@@ -1,0 +1,39 @@
+{
+  "skincopy": {
+    "settings": {
+      "enabled": {
+        "name": "Enabled"
+      },
+      "skinCopyEnabled": {
+        "name": "Apply skin in player menu"
+      },
+      "lookupEnabled": {
+        "name": "Enable user history"
+      },
+      "quickActionsEnabled": {
+        "name": "Profile quick actions"
+      },
+      "backupEnabled": {
+        "name": "Back up current skin before copying"
+      },
+      "liveSkinEnabled": {
+        "name": "Local live skin switch"
+      },
+      "labySourceEnabled": {
+        "name": "History source: Laby.net"
+      },
+      "rebelSourceEnabled": {
+        "name": "History source: RebelCore"
+      },
+      "compareHistory": {
+        "name": "Compare history by default"
+      },
+      "compactHistory": {
+        "name": "Compact history without date details"
+      },
+      "chatFeedback": {
+        "name": "Success messages in chat"
+      }
+    }
+  }
+}

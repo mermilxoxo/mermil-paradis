@@ -1,0 +1,39 @@
+{
+  "skincopy": {
+    "settings": {
+      "enabled": {
+        "name": "Aktiviert"
+      },
+      "skinCopyEnabled": {
+        "name": "Skin-Uebernahme im Mausrad-Menue"
+      },
+      "lookupEnabled": {
+        "name": "User-History aktivieren"
+      },
+      "quickActionsEnabled": {
+        "name": "Profil-Schnellaktionen"
+      },
+      "backupEnabled": {
+        "name": "Bisherigen Skin vor Uebernahme sichern"
+      },
+      "liveSkinEnabled": {
+        "name": "Lokaler Live-Skin-Wechsel"
+      },
+      "labySourceEnabled": {
+        "name": "History-Quelle: Laby.net"
+      },
+      "rebelSourceEnabled": {
+        "name": "History-Quelle: RebelCore"
+      },
+      "compareHistory": {
+        "name": "History-Vergleich als Standard"
+      },
+      "compactHistory": {
+        "name": "Kompakte History ohne Datumsdetails"
+      },
+      "chatFeedback": {
+        "name": "Erfolgsmeldungen im Chat"
+      }
+    }
+  }
+}

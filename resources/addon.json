@@ -1,0 +1,18 @@
+{
+  "namespace": "skincopy",
+  "displayName": "Mermil Paradis",
+  "description": "Mermil UI mit History-Vergleich, Profil-Schnellaktionen, Skin-Wiederherstellung und eigenen Einstellungen.",
+  "version": "0.3.0",
+  "author": "Mermil",
+  "requiredLabyModBuild": 0,
+  "releaseChannel": "release",
+  "compatibleMinecraftVersions": "1.21.11",
+  "mainClass": "de.skincopy.SkinCopyAddon",
+  "meta": ["RESTART_REQUIRED"],
+  "mavenDependencies": [],
+  "addonDependencies": [],
+  "incompatibles": [],
+  "entrypoints": [],
+  "earlyTransformers": [],
+  "transformers": []
+}
