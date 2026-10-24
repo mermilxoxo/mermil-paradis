@@ -10,6 +10,7 @@ import net.labymod.api.LabyAPI;
 import net.labymod.api.client.component.Component;
 import net.labymod.api.client.component.format.NamedTextColor;
 import net.labymod.api.client.component.format.TextColor;
+import net.labymod.api.client.gui.icon.Icon;
 import net.labymod.api.client.gui.screen.Parent;
 import net.labymod.api.client.gui.screen.activity.AutoActivity;
 import net.labymod.api.client.gui.screen.activity.types.SimpleActivity;
@@ -17,8 +18,11 @@ import net.labymod.api.client.gui.screen.widget.Widget;
 import net.labymod.api.client.gui.screen.widget.widgets.ComponentWidget;
 import net.labymod.api.client.gui.screen.widget.widgets.input.ButtonWidget;
 import net.labymod.api.client.gui.screen.widget.widgets.input.TextFieldWidget;
+import net.labymod.api.client.gui.screen.widget.widgets.layout.FlexibleContentWidget;
 import net.labymod.api.client.gui.screen.widget.widgets.layout.ScrollWidget;
 import net.labymod.api.client.gui.screen.widget.widgets.layout.list.VerticalListWidget;
+import net.labymod.api.client.gui.screen.widget.widgets.renderer.IconWidget;
+import net.labymod.api.client.resources.ResourceLocation;
 import net.labymod.api.configuration.loader.property.ConfigProperty;
 import net.labymod.api.models.OperatingSystem;
 import static de.skincopy.lookup.HistoryData.*;
@@ -59,7 +63,11 @@ public final class HistoryActivity extends SimpleActivity {
     @Override
     public void initialize(Parent parent) {
         super.initialize(parent);
-        addText("MP", "mermil-monogram", NamedTextColor.WHITE);
+        // Echtes Logo-Asset statt Text-Monogramm: IconWidget laedt die eigene Textur direkt.
+        IconWidget brand = new IconWidget(
+                Icon.texture(ResourceLocation.create("skincopy", "textures/mermil.png")));
+        brand.addId("mermil-icon");
+        document().addChild(brand);
         addText("MERMIL", "mermil-title", NamedTextColor.LIGHT_PURPLE);
         addText("PARADIS", "mermil-subtitle", NamedTextColor.GRAY);
         addText("0.3.1", "mermil-version", NamedTextColor.GRAY);
@@ -84,10 +92,7 @@ public final class HistoryActivity extends SimpleActivity {
         document().addChild(searchButton);
         }
         statusWidget = addText(status, "mermil-status", NamedTextColor.WHITE);
-        String identity = selectedUuid == null ? "Noch kein Spieler ausgewaehlt."
-                : (selectedName == null ? "Spieler" : selectedName) + "  /  " + selectedUuid;
-        if (playerTab) addText(selectedUuid == null ? "Suche einen Spieler, um loszulegen."
-                : selectedName == null ? selectedUuid.toString() : selectedName, "mermil-identity", NamedTextColor.WHITE);
+        if (playerTab) identity();
 
         VerticalListWidget<Widget> list = new VerticalListWidget<>();
         list.addId("mermil-list");
@@ -114,12 +119,30 @@ public final class HistoryActivity extends SimpleActivity {
             });
         }
     }
+    /** NameMC-style header: the player name is the heading, the UUID sits beneath it. */
+    private void identity() {
+        if (selectedUuid == null) {
+            addText("Kein Spieler ausgewaehlt.", "mermil-identity", NamedTextColor.GRAY);
+            return;
+        }
+        addText(selectedName == null ? "Name unbekannt" : selectedName,
+                "mermil-identity", NamedTextColor.WHITE);
+        addComponent(Component.text("UUID   ", NamedTextColor.DARK_GRAY)
+                        .append(Component.text(selectedUuid.toString(), NamedTextColor.GRAY)),
+                "mermil-identity-sub");
+    }
     private ComponentWidget addText(String text, String id, TextColor color) {
         ComponentWidget widget = ComponentWidget.text(text, color);
         widget.addId(id);
         widget.clippingTextTooltip().set(true);
         document().addChild(widget);
         return widget;
+    }
+    private void addComponent(Component component, String id) {
+        ComponentWidget widget = ComponentWidget.component(component);
+        widget.addId(id);
+        widget.clippingTextTooltip().set(true);
+        document().addChild(widget);
     }
     private void nav(String label, String target, String id) {
         ButtonWidget button = ButtonWidget.text(label, () -> {
@@ -137,11 +160,63 @@ public final class HistoryActivity extends SimpleActivity {
         widget.addId("mermil-line");
         list.addChild(widget);
     }
+    /** Muted small-caps section label, like a name-database subsection heading. */
     private static void title(VerticalListWidget<Widget> list, String text) {
-        ComponentWidget widget = ComponentWidget.text(text, NamedTextColor.LIGHT_PURPLE);
+        ComponentWidget widget = ComponentWidget.text(text.toUpperCase(java.util.Locale.ROOT),
+                NamedTextColor.GRAY);
         widget.addId("mermil-section");
         widget.clippingTextTooltip().set(true);
         list.addChild(widget);
+    }
+    /** Muted continuation of a row: documentation text instead of a full-width banner. */
+    private static void detail(VerticalListWidget<Widget> list, String text, TextColor color) {
+        ComponentWidget widget = ComponentWidget.text(text, color);
+        widget.clippingTextTooltip().set(true);
+        widget.addId("mermil-row-detail");
+        list.addChild(widget);
+    }
+    /** Table row: value on the left, meta on the right, quiet surface between. */
+    private static void row(VerticalListWidget<Widget> list, String name, TextColor nameColor,
+                            Component meta) {
+        FlexibleContentWidget flex = new FlexibleContentWidget();
+        flex.addId("mermil-row");
+        ComponentWidget left = ComponentWidget.text(name, nameColor);
+        left.addId("mermil-row-name");
+        left.clippingTextTooltip().set(true);
+        flex.addFlexibleContent(left);
+        right(list, flex, meta);
+        list.addChild(flex);
+    }
+
+    /**
+     * Like {@link #row} but the value is a copy button: pressing it puts the value on the
+     * clipboard, exactly how name databases make their entries easy to grab. The trailing
+     * clipboard glyph does the same on its own click.
+     */
+    private void row(VerticalListWidget<Widget> list, String name, Component meta,
+                     String clipboardValue) {
+        FlexibleContentWidget flex = new FlexibleContentWidget();
+        flex.addId("mermil-row");
+        ButtonWidget copy = ButtonWidget.text(name, () -> copy(clipboardValue));
+        copy.addId("mermil-copy");
+        flex.addFlexibleContent(copy);
+        right(list, flex, meta);
+        ButtonWidget shortcut = ButtonWidget.icon(COPY_ICON, () -> copy(clipboardValue));
+        shortcut.addId("mermil-copy-icon");
+        flex.addContent(shortcut);
+        list.addChild(flex);
+    }
+    /** LabyMod's own clipboard glyph from its default icon pack. */
+    private static final Icon COPY_ICON = Icon.texture(
+            ResourceLocation.create("labymod", "icon_packs/default/common/copy.png"));
+    /** Shared right-hand meta: after the flexible content it hugs the row's right edge. */
+    private static void right(VerticalListWidget<Widget> list, FlexibleContentWidget flex, Component meta) {
+        if (meta != null) {
+            ComponentWidget part = ComponentWidget.component(meta);
+            part.addId("mermil-row-meta");
+            part.clippingTextTooltip().set(true);
+            flex.addContent(part);
+        }
     }
     private static ButtonWidget button(VerticalListWidget<Widget> list, String label, Runnable click, boolean enabled) {
         ButtonWidget widget = ButtonWidget.text(label, click::run);
@@ -151,67 +226,96 @@ public final class HistoryActivity extends SimpleActivity {
         return widget;
     }
     private void history(VerticalListWidget<Widget> list) {
-        title(list, "Namenshistorie");
         if (!on(config().lookupEnabled())) {
             line(list, "History ist deaktiviert. In Einstellungen wieder einschalten.", NamedTextColor.GRAY); return;
         }
         if (selectedUuid == null) {
-            line(list, "Suche einen Namen / eine UUID oder nutze das Mausrad-Spielermenue.", NamedTextColor.WHITE);
-            line(list, "Befehl: /mp lookup Spielername", NamedTextColor.GRAY); return;
+            line(list, "Spielername / UUID suchen oder Mausrad-Spielermenue nutzen.", NamedTextColor.GRAY);
+            line(list, "Befehl: /mp lookup Spielername", NamedTextColor.DARK_GRAY); return;
         }
         button(list, on(config().compareHistory()) ? "Ansicht: VERGLEICH - zu Quellen wechseln"
                 : "Ansicht: QUELLEN - zum Vergleich wechseln", () -> {
             config().compareHistory().set(!on(config().compareHistory())); addon.saveSettings(); refresh();
         }, true);
+        title(list, "Namenshistorie");
+        for (Source source : Source.values()) sourceRow(list, source);
+        if (on(config().compareHistory())) compareList(list); else sourceList(list);
+        rebelSkins(list);
+        detail(list, "Namen antippen kopiert sie. Sichtungsdatum ist keine exakte Aenderungszeit.",
+                NamedTextColor.DARK_GRAY);
+    }
+    /** Status of one source as a table row: name left, state right. */
+    private void sourceRow(VerticalListWidget<Widget> list, Source source) {
+        boolean enabled = sourceEnabled(source);
+        Result result = results.get(source);
+        String meta = "aus";
+        if (enabled) {
+            if (result == null) meta = "laedt ...";
+            else if (result.success()) {
+                String names = result.names().size() == 1 ? "1 Name" : result.names().size() + " Namen";
+                if (source == Source.REBEL) {
+                    String skins = result.skins().size() == 1 ? "1 Sichtung" : result.skins().size() + " Sichtungen";
+                    meta = names + " - " + skins;
+                } else meta = names;
+            } else meta = "nicht verfuegbar";
+        }
+        TextColor stateColor = enabled && result != null && result.success() ? NamedTextColor.GREEN
+                : enabled && result != null && !result.success() ? NamedTextColor.RED
+                : NamedTextColor.DARK_GRAY;
+        row(list, source.title, NamedTextColor.WHITE, Component.text(meta, stateColor));
+        if (enabled && result != null && !result.success())
+            detail(list, result.message(), NamedTextColor.DARK_GRAY);
+    }
+    /** Compare view: one row per name, sources as counts on the right. */
+    private void compareList(VerticalListWidget<Widget> list) {
+        List<HistoryComparison.Row> rows = HistoryComparison.compare(results);
+        long both = rows.stream().filter(HistoryComparison.Row::both).count();
+        if (rows.isEmpty()) {
+            line(list, "Bisher keine Namenseintraege zum Vergleichen.", NamedTextColor.GRAY); return;
+        }
+        detail(list, rows.size() + " Namen, " + both + " in beiden Quellen", NamedTextColor.GRAY);
+        for (HistoryComparison.Row row : rows) {
+            TextColor labyColor = row.laby().isEmpty() ? NamedTextColor.DARK_GRAY : NamedTextColor.GRAY;
+            TextColor rebelColor = row.rebel().isEmpty() ? NamedTextColor.DARK_GRAY : NamedTextColor.GRAY;
+            Component meta = Component.text("Laby " + (row.laby().isEmpty() ? "-" : row.laby().size()), labyColor)
+                    .append(Component.text("   ", NamedTextColor.DARK_GRAY))
+                    .append(Component.text("Rebel " + (row.rebel().isEmpty() ? "-" : row.rebel().size()), rebelColor));
+            row(list, row.name(), meta, row.name());
+            dates(list, "Laby", row.laby(), true);
+            dates(list, "Rebel", row.rebel(), false);
+        }
+    }
+    private void dates(VerticalListWidget<Widget> list, String sourceLabel, List<Name> names, boolean changes) {
+        for (Name name : names) detail(list, sourceLabel + (changes ? " - geaendert: "
+                + (name.accurate() ? " " : " ~ ") + name.date()
+                : " - zuletzt genutzt: " + name.date()), NamedTextColor.DARK_GRAY);
+    }
+    /** Source view: each successful source as its own dated table. */
+    private void sourceList(VerticalListWidget<Widget> list) {
         for (Source source : Source.values()) {
-            boolean enabled = sourceEnabled(source);
             Result result = results.get(source);
-            String summary = !enabled ? "deaktiviert" : result == null ? "Abfrage laeuft ..."
-                    : result.success() ? result.names().size() + " Namen | " + result.message() : result.message();
-            line(list, source.title + ": " + summary,
-                    result != null && !result.success() && enabled ? NamedTextColor.RED : NamedTextColor.GRAY);
+            if (!sourceEnabled(source) || result == null || !result.success()) continue;
+            title(list, source.title);
+            for (Name name : result.names()) row(list, name.username(),
+                    Component.text((source == Source.LABY
+                            ? "geaendert: " + (name.accurate() ? "" : "~ ")
+                            : "zuletzt genutzt: ") + name.date(), NamedTextColor.GRAY), name.username());
         }
-        if (on(config().compareHistory())) {
-            List<HistoryComparison.Row> rows = HistoryComparison.compare(results);
-            long both = rows.stream().filter(HistoryComparison.Row::both).count();
-            title(list, rows.size() + " Namen  /  " + both + " in beiden Quellen");
-            for (HistoryComparison.Row row : rows) {
-                String laby = row.laby().isEmpty() ? HistoryComparison.absence(results.get(Source.LABY), sourceEnabled(Source.LABY))
-                        : "gefunden (" + row.laby().size() + ")";
-                String rebel = row.rebel().isEmpty() ? HistoryComparison.absence(results.get(Source.REBEL), sourceEnabled(Source.REBEL))
-                        : "gefunden (" + row.rebel().size() + ")";
-                title(list, row.name());
-                line(list, "Laby: " + laby + "    /    Rebel: " + rebel,
-                        row.both() ? NamedTextColor.GREEN : NamedTextColor.WHITE);
-                if (!on(config().compactHistory())) {
-                    for (Name name : row.laby()) line(list, "  Laby - geaendert: "
-                            + (name.accurate() ? "" : "~ ") + name.date(), NamedTextColor.GRAY);
-                    for (Name name : row.rebel()) line(list, "  Rebel - zuletzt genutzt: " + name.date(), NamedTextColor.GRAY);
-                }
-            }
-            if (rows.isEmpty()) line(list, "Bisher keine Namenseintraege zum Vergleichen.", NamedTextColor.GRAY);
-        } else {
-            for (Source source : Source.values()) {
-                Result result = results.get(source);
-                if (!sourceEnabled(source) || result == null || !result.success()) continue;
-                title(list, source.title.toUpperCase(java.util.Locale.ROOT));
-                for (Name name : result.names()) line(list, name.username() + " | "
-                        + (source == Source.LABY ? "geaendert: " + (name.accurate() ? "" : "~ ") : "zuletzt genutzt: ")
-                        + name.date(), NamedTextColor.WHITE);
-            }
-        }
+    }
+    private void rebelSkins(VerticalListWidget<Widget> list) {
         Result rebel = results.get(Source.REBEL);
-        if (sourceEnabled(Source.REBEL) && rebel != null && rebel.success()) {
-            title(list, "SKIN-SICHTUNGEN: " + rebel.skins().size());
-            for (Skin skin : rebel.skins()) line(list, (skin.slim() == null ? "Modell unbekannt" : skin.slim() ? "Slim" : "Classic")
-                    + " | " + (skin.active() == null ? "Status unbekannt" : skin.active() ? "aktiv laut Quelle" : "archiviert")
-                    + " | " + skin.firstSeen() + " bis " + skin.lastSeen(), NamedTextColor.GRAY);
+        if (!sourceEnabled(Source.REBEL) || rebel == null || !rebel.success() || rebel.skins().isEmpty()) return;
+        int skins = rebel.skins().size();
+        title(list, "Skin-Sichtungen (" + (skins == 1 ? "1" : skins) + ")");
+        for (Skin skin : rebel.skins()) {
+            String model = skin.slim() == null ? "Modell unbekannt" : skin.slim() ? "Slim" : "Classic";
+            String state = skin.active() == null ? "Status unbekannt"
+                    : skin.active() ? "aktiv" : "archiviert";
+            row(list, model, NamedTextColor.WHITE, Component.text(state
+                    + "   " + skin.firstSeen() + " - " + skin.lastSeen(), NamedTextColor.GRAY));
         }
-        line(list, "Quellen koennen Luecken haben. Sichtungsdatum ist kein exaktes Aenderungsdatum.", NamedTextColor.GRAY);
-        line(list, "Abgleich ohne Gross-/Kleinschreibung. Profil-Links und Kopieren: Bereich Profil.", NamedTextColor.GRAY);
     }
     private void profile(VerticalListWidget<Widget> list) {
-        title(list, "Profil");
         if (!on(config().quickActionsEnabled())) {
             line(list, "Profil-Schnellaktionen sind in Einstellungen deaktiviert.", NamedTextColor.GRAY); return;
         }
@@ -221,7 +325,6 @@ public final class HistoryActivity extends SimpleActivity {
         UUID id = selectedUuid;
         String name = selectedName;
         String namemc = "https://namemc.com/profile/" + id;
-        line(list, "UUID: " + id, NamedTextColor.GRAY);
         title(list, "Kopieren");
         button(list, "Spielername kopieren", () -> copy(name), name != null);
         button(list, "UUID kopieren", () -> copy(id.toString()), true);
@@ -230,7 +333,7 @@ public final class HistoryActivity extends SimpleActivity {
         button(list, "NameMC im Browser oeffnen", () -> open(namemc), true);
         button(list, "Laby.net im Browser oeffnen", () -> open("https://laby.net/@" + name), name != null);
         button(list, "Crafty im Browser oeffnen", () -> open("https://crafty.gg/@" + name), name != null);
-        button(list, "RebelCore Profil-JSON oeffnen", () -> open(RebelCore.profileUrl(id)), true);
+        button(list, "RebelCore-Profil oeffnen", () -> open(RebelCore.profileUrl(id)), true);
         title(list, "Mehr zu diesem Spieler");
         button(list, "History dieses Spielers anzeigen", () -> {
             tab = "history"; refresh(); if (!historyRequested) loadHistory(generation);
@@ -282,8 +385,8 @@ public final class HistoryActivity extends SimpleActivity {
         line(list, "LabyMod-Addon-Einstellungen bieten dieselben Schalter.", NamedTextColor.GRAY);
     }
     private void toggle(VerticalListWidget<Widget> list, String label, ConfigProperty<Boolean> property) {
-        net.labymod.api.client.gui.screen.widget.widgets.layout.FlexibleContentWidget row =
-                new net.labymod.api.client.gui.screen.widget.widgets.layout.FlexibleContentWidget();
+        FlexibleContentWidget row =
+                new FlexibleContentWidget();
         row.addId("mermil-setting");
         ComponentWidget name = ComponentWidget.text(label, NamedTextColor.WHITE);
         name.addId("mermil-setting-label");

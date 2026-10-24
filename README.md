@@ -8,9 +8,10 @@ Aktueller Quellstand: **0.3.1, experimentell**. Lizenz: [MIT](LICENSE).
 ## Neue Oberflaeche in 0.3.1
 
 Kompakter Kopfbereich, Suche nur in History/Profil und mehr Platz fuer Inhalte.
-Namenseintraege haben eigene Ueberschriften; Profilaktionen und Einstellungen
-sind nach Aufgabe gruppiert. Einstellungen verwenden native Ein-/Aus-Schalter.
-Lange Texte behalten ihre Schriftgroesse und zeigen den vollen Inhalt beim Hover.
+Namenseintraege stehen in Tabellenzeilen mit dem Datum rechts; Profilaktionen und
+Einstellungen sind nach Aufgabe gruppiert. Einstellungen verwenden native
+Ein-/Aus-Schalter. Lange Texte behalten ihre Schriftgroesse und zeigen den vollen
+Inhalt beim Hover. Das Fenster folgt den Farben des LabyMod-Themes.
 
 ## Funktionen
 

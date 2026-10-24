@@ -55,8 +55,19 @@ public final class HistoryDataTest {
             throw new AssertionError("Oversized response accepted");
         } catch (IOException expected) { }
         check(RebelCore.profileUrl(ID).equals("https://api.rebelcore.org/v1/minecraft/user/" + ID + "/profile"), "fixed endpoint");
+        java.util.List<Name> ordered = newestFirst(new java.util.ArrayList<>(java.util.List.of(
+                new Name("Old", "2020-01-01", true),
+                new Name("Zeta", "2024-12-31", false),
+                new Name("Alpha", "2024-12-31", false),
+                new Name("Dateless", "Zeit unbekannt", false))));
+        check(ordered.size() == 4 && ordered.stream().map(Name::username).toList().equals(
+                java.util.List.of("Alpha", "Zeta", "Old", "Dateless")),
+                "newest first, unknown last, ties alphabetical");
+        check(newestFirst(null) == null && newestFirst(java.util.List.of()).isEmpty()
+                && newestFirst(java.util.List.of(new Name("Lone", "2020-01-01", true)))
+                        .getFirst().username().equals("Lone"), "degenerate inputs");
         check(status(429).contains("Abfragelimit") && status(403).contains("erlaubt"), "service status");
-        System.out.println("PASS HistoryDataTest: UUID, schema, provenance, dates, missing fields, malformed responses, size limits");
+        System.out.println("PASS HistoryDataTest: UUID, schema, provenance, dates, order, limits");
     }
     private static void check(boolean condition, String label) {
         if (!condition) throw new AssertionError(label);

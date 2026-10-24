@@ -72,13 +72,15 @@ public final class HistoryService {
         AtomicBoolean finished = new AtomicBoolean();
         Consumer<Result> finish = result -> {
             if (!finished.compareAndSet(false, true)) return;
+            // Presentation order lives at the service level; parse fixtures keep their own list order.
+            Result shown = present(result);
             deliver(() -> {
                 List<Consumer<Result>> listeners = pending.remove(key);
                 if (result.success()) {
-                    cache.put(key, new Cached(System.currentTimeMillis() + 300000, result));
+                    cache.put(key, new Cached(System.currentTimeMillis() + 300000, shown));
                     while (cache.size() > 64) cache.remove(cache.keySet().iterator().next());
                 }
-                if (listeners != null) for (Consumer<Result> listener : listeners) listener.accept(result);
+                if (listeners != null) for (Consumer<Result> listener : listeners) listener.accept(shown);
             });
         };
         CompletableFuture.delayedExecutor(18, TimeUnit.SECONDS).execute(
@@ -111,4 +113,12 @@ public final class HistoryService {
     }
 
     private void deliver(Runnable callback) { api.minecraft().executeNextTick(callback); }
+
+    /** Service-level presentation: newest names first, so caches and compare share the order. */
+    private static Result present(Result result) {
+        return result.success()
+                ? new Result(result.source(), true, result.message(),
+                        HistoryData.newestFirst(result.names()), result.skins())
+                : result;
+    }
 }

@@ -1,6 +1,7 @@
 package de.skincopy.lookup;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +47,33 @@ public final class HistoryData {
             catch (RuntimeException ignored) { }
         }
         return "Zeit unbekannt";
+    }
+
+    /** The ISO calendar date of a shown value, or null when the source gave no usable time. */
+    static LocalDate dateKey(Name name) {
+        try { return LocalDate.parse(name.date()); } catch (RuntimeException ignored) { return null; }
+    }
+
+    /**
+     * Newest date first, as name databases order their history. Entries without a valid
+     * date keep the end of the list, ties are alphabetically case-insensitive.
+     */
+    public static List<Name> newestFirst(List<Name> names) {
+        if (names == null || names.size() < 2) return names;
+        List<Name> sorted = new ArrayList<>(names);
+        sorted.sort((left, right) -> {
+            LocalDate one = dateKey(left), two = dateKey(right);
+            if (one == null || two == null) {
+                if (one == null && two == null) {
+                    return String.CASE_INSENSITIVE_ORDER.compare(left.username(), right.username());
+                }
+                return one == null ? 1 : -1;
+            }
+            int order = two.compareTo(one);
+            return order != 0 ? order
+                    : String.CASE_INSENSITIVE_ORDER.compare(left.username(), right.username());
+        });
+        return List.copyOf(sorted);
     }
     public static String status(int code) {
         return switch (code) {

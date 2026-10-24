@@ -18,8 +18,10 @@ Tests cover:
 - `SkinDataTest`: Classic/Slim, texture URL validation and HTTPS normalization.
 - `ServiceStatusTest`: HTTP diagnostics, PNG signatures and response limits.
 - `HistoryDataTest`: documented RebelCore schema fixtures, UUID binding,
-  nullable fields, date semantics and response/record bounds.
-- `HistoryComparisonTest`: source union, repeated events, provenance and distinction
+  nullable fields, date semantics, name ordering (newest first, unknown dates
+  last) and response/record bounds.
+- `HistoryComparisonTest`: source union, row ordering by newest dated event,
+  repeated events, provenance and distinction
   between failed, pending, disabled and absent source records.
 - `SkinBackupsTest`: pending/saved journal, successful and rejected changes,
   restart serialization, recovery and account separation.

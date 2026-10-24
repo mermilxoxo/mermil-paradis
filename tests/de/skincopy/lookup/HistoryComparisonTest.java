@@ -15,6 +15,8 @@ public final class HistoryComparisonTest {
                 new Name("shared", "2021-01-01", false), new Name("OnlyRebel", "2023-01-01", false)), List.of()));
         var rows = HistoryComparison.compare(data);
         check(rows.size() == 3, "case insensitive union");
+        check(rows.getFirst().name().equals("OnlyRebel") && rows.get(1).name().equals("Shared")
+                && rows.get(2).name().equals("OnlyLaby"), "rows newest event first");
         var shared = rows.stream().filter(HistoryComparison.Row::both).findFirst().orElseThrow();
         check(shared.laby().size() == 2 && shared.rebel().size() == 1, "keep repeated dated events");
         check(shared.laby().getFirst().accurate() && !shared.rebel().getFirst().accurate(), "keep date semantics");
@@ -24,7 +26,7 @@ public final class HistoryComparisonTest {
         check(HistoryComparison.compare(data).size() == 2, "failed source adds no invented names");
         check(HistoryComparison.absence(null, true).equals("laedt noch"), "pending is not absence");
         check(HistoryComparison.absence(data.get(Source.LABY), false).equals("deaktiviert"), "disabled is not absence");
-        System.out.println("PASS HistoryComparisonTest: union, provenance, repeated events, failed/pending/disabled sources");
+        System.out.println("PASS HistoryComparisonTest: union, order, repeated events, failed/pending/disabled sources");
     }
     private static void check(boolean condition, String label) { if (!condition) throw new AssertionError(label); }
 }
