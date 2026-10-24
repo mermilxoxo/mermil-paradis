@@ -1,0 +1,50 @@
+# Generated artifacts and local third-party libraries
+/build/
+/dist/
+/out/
+*.class
+*.jar
+*.zip
+*.args
+*.log
+/logs/
+
+# Development environments
+/.idea/
+/.vscode/
+/.gradle/
+*.iml
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+
+# Minecraft/LabyMod runtime data: never publish account or player data
+/.minecraft/
+/labymod-neo/
+/run/
+/config/
+/configs/
+**/settings.json
+**/*backup*.json
+**/*session*.json
+**/launcher_accounts.json
+**/launcher_profiles.json
+**/accounts.json
+*.sqlite
+*.sqlite3
+*.db
+
+# Credentials and local configuration
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials*
+secrets*
+id_rsa*
+id_ed25519*
