@@ -126,6 +126,12 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
         changeSkin(skin, loadedTexture, "Skin von " + playerName, false);
     }
 
+    /** Applies a validated public profile skin through the existing backup and upload flow. */
+    public void applyProfileSkin(SkinData skin) {
+        if (skin != null && Boolean.TRUE.equals(configuration().skinCopyEnabled().get()))
+            changeSkin(skin, null, "Profil-Skin", false);
+    }
+
     public UUID accountId() {
         Session session = labyAPI().minecraft().sessionAccessor().getSession();
         return session != null && session.hasUniqueId() ? session.getUniqueId() : null;
@@ -464,7 +470,8 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
                 SkinCopyAddon.this.message("Addon ist deaktiviert.", false); return true;
             }
             if (arguments.length == 0 || (arguments.length == 1 && arguments[0].equalsIgnoreCase("lookup"))) {
-                SkinCopyAddon.this.openHistory("", null);
+                if (arguments.length == 0) SkinCopyAddon.this.openPanel("", null, "profile");
+                else SkinCopyAddon.this.openHistory("", null);
             } else if (arguments.length == 1 && arguments[0].equalsIgnoreCase("settings")) {
                 SkinCopyAddon.this.openPanel("", null, "settings");
             } else if (arguments.length == 1 && arguments[0].equalsIgnoreCase("skins")) {
@@ -484,7 +491,7 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
 
     private final class CopySkinEntry extends AbstractBulletPoint {
         private CopySkinEntry() {
-            super(Component.text("Skin übernehmen", NamedTextColor.AQUA),
+            super(Component.text("Skin ǟ��bernehmen", NamedTextColor.AQUA),
                     Icon.texture(SkinCopyAddon.this.resource("textures/mermil.png")));
         }
 

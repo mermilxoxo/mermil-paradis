@@ -48,3 +48,6 @@ credentials*
 secrets*
 id_rsa*
 id_ed25519*
+
+# Local PNG downloads from the profile view
+/mermil-paradis/

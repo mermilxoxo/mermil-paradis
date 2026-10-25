@@ -31,7 +31,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Test-Stub-JAR konnte nicht erstellt werden.' }
 $testClassPath = $testJar + ';' + $classPath
 foreach ($testClass in @('de.skincopy.SkinDataTest', 'de.skincopy.ServiceStatusTest',
         'de.skincopy.SkinBackupsTest', 'de.skincopy.ParadisLinksTest',
-        'de.skincopy.lookup.HistoryDataTest', 'de.skincopy.lookup.HistoryComparisonTest')) {
+        'de.skincopy.lookup.ProfileSkinTest', 'de.skincopy.lookup.HistoryDataTest', 'de.skincopy.lookup.HistoryComparisonTest')) {
     & $java -Xverify:all -classpath $testClassPath $testClass $addonJar
     if ($LASTEXITCODE -ne 0) { throw "Test fehlgeschlagen: $testClass" }
 }

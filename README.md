@@ -1,17 +1,33 @@
 # Mermil Paradis
 
 Open-Source-Addon fuer **LabyMod 4 / Minecraft Java 1.21.11**.
-Aktueller Quellstand: **0.3.1, experimentell**. Lizenz: [MIT](LICENSE).
+Aktueller Quellstand: **0.4.0, experimentell**. Lizenz: [MIT](LICENSE).
 
 ![Mermil icon](resources/assets/skincopy/textures/mermil.png)
 
-## Neue Oberflaeche in 0.3.1
+## Profilansicht in 0.4.0
 
-Kompakter Kopfbereich, Suche nur in History/Profil und mehr Platz fuer Inhalte.
-Namenseintraege stehen in Tabellenzeilen mit dem Datum rechts; Profilaktionen und
-Einstellungen sind nach Aufgabe gruppiert. Einstellungen verwenden native
-Ein-/Aus-Schalter. Lange Texte behalten ihre Schriftgroesse und zeigen den vollen
-Inhalt beim Hover. Das Fenster folgt den Farben des LabyMod-Themes.
+Helle Profilansicht mit weichen Karten und violettem Akzent. Breite Fenster zeigen
+Skin-Vorschau und Profilinformationen nebeneinander; unter 560 GUI-Einheiten
+werden die Karten gestapelt und gemeinsam gescrollt. Tabs trennen Uebersicht,
+Namenshistorie und Skin-Sichtungen. Eigener Skin und Einstellungen sind separat.
+
+Die aktuelle Skin-Vorschau nutzt LabyMods nativen PlayerModelWidget ohne Cosmetics
+und kann zwischen Vorder- und Rueckseite wechseln. Das bindet die Darstellung an
+die vorhandene LabyMod-Core-Version. Uebernahme verwendet den bestehenden
+Account-/Sicherungsablauf. PNGs werden nach Klick unter
+`mermil-paradis/skins/<UUID>.png` relativ zum Spiel-Arbeitsverzeichnis gespeichert.
+Ein erneuter Download desselben Profils ersetzt diese Datei.
+
+Die Skin-Daten kommen auf ausdrueckliche Profilsuche vom oeffentlichen
+Mojang-Sessionserver (UUID, ohne Zugangsdaten). Weiterleitungen und zu grosse
+Antworten werden abgewiesen. Heruntergeladene PNGs kommen ausschliesslich vom
+Minecraft-Texturserver. Skin-History-Karten zeigen weiterhin nur Metadaten; die
+Quelle liefert keine Bild-URLs. Es werden keine historischen Bilder erfunden.
+
+Das bisherige Mermil-Logo bleibt vorlaeufig enthalten, weil der angehaengte
+Roboterkopf in der Entwicklungsumgebung nicht heruntergeladen werden konnte.
+Der Austausch gegen die bereitgestellte PNG ist noch offen.
 
 ## Funktionen
 
@@ -55,7 +71,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 Die Ausfuehrungsoption gilt nur fuer diesen Prozess. `build.ps1` sucht die
 LabyMod-Installation unter `%APPDATA%/LabyMod`, kopiert benoetigte Bibliotheken
 in den ignorierten Ordner `build/compile-deps` und erzeugt
-`Mermil-Paradis-0.3.1-release.jar`. Installierte Client-Dateien werden nicht veraendert.
+`Mermil-Paradis-0.4.0-release.jar`. Installierte Client-Dateien werden nicht veraendert.
 Abhaengigkeiten werden weder heruntergeladen noch in diesem Repository mitgeliefert.
 Dies ist kein Gradle-Projekt und kein unabhaengig startbares Java-Programm.
 
@@ -86,7 +102,7 @@ Sicherungen sind nach Account getrennt, mit einer Grenze von 32 Accounts.
 Beim Wiederherstellen wird der gerade aktive Skin zur Rueckkehr gesichert.
 
 Eine Sicherung entsteht erst vor einer **neuen Uebernahme mit aktivierter Sicherung**.
-Versionen vor 0.3.1 haben den vorherigen Skin nicht gespeichert. Diese alten
+Versionen vor 0.4.0 haben den vorherigen Skin nicht gespeichert. Diese alten
 Aenderungen lassen sich nicht rueckwirkend wiederherstellen. Kann kein aktiver
 Account-Skin gesichert werden, etwa ein Standard-Skin ohne passende Textur,
 wird die Uebernahme bei aktivierter Sicherung abgebrochen.
@@ -127,7 +143,7 @@ oder Zugangsdaten committen.** Hinweise zum Melden von Problemen stehen in
 ## Pruefstand
 
 Offline-Tests fuer History-Parsing, Vergleich, Skin-Sicherungsjournal, PNG-/URL-
-Pruefung und den isolierten Skin-Hook wurden bestanden. Alle 31 Addon-Klassen
+Pruefung und den isolierten Skin-Hook wurden bestanden. Alle 32 Addon-Klassen
 wurden gegen die verwendete LabyMod-API geprueft. Die Activity-Metadaten werden
 explizit registriert, da dieser Build keinen LabyMod-Annotationsprozessor verwendet.
 

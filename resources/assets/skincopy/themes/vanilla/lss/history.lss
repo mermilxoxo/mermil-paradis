@@ -1,236 +1,66 @@
-// Mermil Paradis - Profilfenster.
-// Struktur wie NameMC: neutrale Flaechen, Spielername als Kopfzeile, Namenshistorie
-// als Tabelle (Wert links, Meta rechts), Akzente nur auf aktivem Tab und Suche.
-// Alle Farben sind Theme-Tokens; das Fenster paart sich mit jedem LabyMod-Thema.
-// font-size ist bei Components ein Skalierungsfaktor (Standard 1.0); "small"/"medium"
-// sind die vordefinierten Groessen, keine Pixel.
-
-Document {
-    background-color: var(--surface-0);
+// Mermil Paradis 0.4: light profile workspace, soft raised cards, inset search.
+Document { background-color: #e9edf3; }
+Component { shadow: false; text-color: #303747; }
+.mermil-icon { left: 14; top: 12; width: 26; height: 26; object-fit: contain; }
+.mermil-title { left: 48; top: 12; width: 100; height: 14; text-color: #37324b; }
+.mermil-subtitle { left: 49; top: 28; width: 100; height: 10; font-size: small; text-color: #77758b; }
+.mermil-header-action {
+    top: 14; height: 24; renderer: "Background"; background-color: #e9edf3;
+    border-radius: 7;
+    Component { text-color: #454359; }
+    &:enabled:hover { background-color: #ddd9ec; }
 }
-
-// Flacher Text ohne Relief wie auf einer Website.
-Component {
-    shadow: false;
+.mermil-own { right: 106; width: 76; }
+.mermil-options { right: 14; width: 86; }
+.mermil-return { left: 14; width: 90; top: 48; }
+.mermil-input { left: 14; right: 94; top: 50; height: 26; background-color: #e2e7ef; border: none; border-radius: 8; text-color: #303747; text-shadow: false; }
+.mermil-search { right: 14; top: 50; width: 72; height: 26; renderer: "Background"; background-color: #7862b3; border-radius: 8;
+    Component { text-color: white; }
+    &:enabled:hover { background-color: #69519f; }
+    &:not(:enabled) { background-color: #c1b9d6; }
 }
-
-/* ---- Kopf: Mermil-Logo als Textur, Titel daneben ---- */
-.mermil-icon {
-    left: 12; top: 10; width: 26; height: 26;
-    object-fit: contain;
-    alignment-x: center; alignment-y: center;
-}
-.mermil-title {
-    left: 46; right: 65; top: 11; height: 12;
-    text-color: var(--text-foreground);
-}
-.mermil-subtitle {
-    left: 46; right: 65; top: 26; height: 10;
-    overflow-strategy: clip;
-    font-size: small;
-    text-color: var(--text-muted);
-}
-.mermil-version {
-    right: 12; top: 16; width: 40; height: 10;
-    font-size: small;
-    text-color: var(--text-muted);
-}
-
-/* ---- Tabs ---- */
-.mermil-nav {
-    top: 42; height: 22;
-    renderer: "Background";
-    background-color: var(--surface-2);
-    border-radius: var(--radius-slot);
-    background-color-transition-duration: 120;
-
-    Component { text-color: var(--text-secondary); }
-
-    &:hover {
-        background-color: var(--surface-3);
-
-        Component { text-color: var(--text-foreground); }
-    }
-
-    // active last: hover darf die aktive Tabflaeche nicht verdringen
-    &.mermil-nav-active {
-        background-color: var(--accent-surface);
-
-        Component { text-color: var(--accent-text); }
-    }
-}
-.nav-one { left: 12; right: 76%; }
-.nav-two { left: 26%; right: 51%; }
-.nav-three { left: 51%; right: 26%; }
-.nav-four { left: 76%; right: 12; }
-
-/* ---- Suche und Spielername ---- */
-.mermil-input {
-    left: 12; right: 92; top: 72; height: 24;
-    background-color: var(--well-floor);
-    border: none;
-    border-radius: var(--radius-slot);
-}
-.mermil-search {
-    right: 12; width: 74; top: 72; height: 24;
-    renderer: "Background";
-    background-color: var(--accent);
-    border-radius: var(--radius-slot);
-    background-color-transition-duration: 120;
-
-    Component { text-color: var(--accent-text); }
-
-    &:hover { background-color: var(--accent-hover); }
-
-    // disabled after hover: ausgeschaltet bleibt die Flaeche ruhig
-    &:not(:enabled) {
-        background-color: var(--surface-2);
-
-        Component { text-color: var(--text-disabled); }
-    }
-}
-
-.mermil-identity {
-    left: 14; right: 14; top: 104; height: 18;
-    font-size: large;
-    text-color: var(--text-foreground);
-}
-.mermil-identity-sub {
-    left: 14; right: 14; top: 127; height: 10;
-    font-size: small;
-    text-color: var(--text-secondary);
-}
-
-/* ---- Inhalt ---- */
-.mermil-scroll { left: 12; right: 12; bottom: 26; background-color: 0; }
-.mermil-player-content { top: 142; }
-.mermil-tools-content { top: 72; }
+.mermil-identity { left: 16; right: 14; top: 86; height: 18; font-size: large; text-color: #303747; }
+.mermil-identity-sub { left: 16; right: 14; top: 108; height: 10; font-size: small; text-color: #6a7082; }
+.mermil-scroll { left: 8; right: 8; bottom: 26; padding: 7; background-color: 0; }
+.mermil-player-content { top: 124; }
+.mermil-tools-content { top: 80; }
 .mermil-list { width: 100%; height: fit-content; }
-
-/* ---- Tabellenzeile: Wert links, Meta rechts ---- */
-.mermil-row {
-    width: 100%; height: 20;
-    orientation: horizontal;
-    renderer: "Background";
-    background-color: var(--surface-1);
-    border-radius: var(--radius-slot);
-    padding: 0 8 0 8;
+.mermil-columns { width: 100%; height: fit-content; orientation: horizontal; space-between-entries: 12; }
+.mermil-preview-card { width: 160; height: fit-content; padding: 8; renderer: "Background"; background-color: #e9edf3; border-radius: 12; }
+.mermil-preview-card.mermil-stacked { width: 100%; }
+.mermil-details-card { width: 100%; height: fit-content; padding: 8; renderer: "Background"; background-color: #e9edf3; border-radius: 12; }
+.mermil-skin-model { width: 100%; height: 144; base-scale: 0.9; center-model: true; }
+.mermil-tabs { width: 100%; height: 26; orientation: horizontal; space-between-entries: 4; margin-bottom: 8; }
+.mermil-tab { width: 100%; height: 26; renderer: "Background"; background-color: #e0e5ed; border-radius: 8;
+    Component { text-color: #626578; }
+    &:enabled:hover { background-color: #d6dce6; }
+    &.mermil-tab-active { background-color: #dcd5ee; Component { text-color: #554178; } }
 }
-.mermil-row-name {
-    alignment-y: center;
-    overflow-strategy: clip;
-    text-color: var(--text-foreground);
+.mermil-section { width: 100%; height: 18; margin-top: 6; padding-left: 5; font-size: small; text-color: #625777; }
+.mermil-line { width: 100%; height: 18; padding: 0 5; text-color: #454d60; overflow-strategy: clip; }
+.mermil-row-detail { width: 100%; height: 14; padding-left: 8; font-size: small; text-color: #697183; overflow-strategy: clip; }
+.mermil-row { width: 100%; height: 24; orientation: horizontal; padding: 0 6; renderer: "Background"; background-color: #f2f4f8; border-radius: 5; }
+.mermil-row-name { alignment-y: center; overflow-strategy: clip; text-color: #303747; }
+.mermil-row-meta { alignment-y: center; margin-left: 5; max-width: 45%; overflow-strategy: clip; text-color: #697183; }
+.mermil-copy { width: 100%; height: 100%; renderer: "Background"; background-color: 0; padding: 0;
+    Component { alignment-x: left; text-color: #51426c; }
+    &:enabled:hover { background-color: #e3ddef; }
 }
-.mermil-row-meta {
-    alignment-y: center;
-    margin-left: 8;
-    max-width: 40%;
-    overflow-strategy: clip;
-    text-color: var(--text-secondary);
+.mermil-copy-icon { width: 14; height: 14; alignment-y: center; margin-left: 3; renderer: "Background"; background-color: 0;
+    Icon { width: 10; height: 10; alignment-x: center; alignment-y: center; }
 }
-
-/* Der Namenswert in kopierbaren Zeilen ist die Taste selbst. */
-.mermil-copy {
-    width: 100%; height: 100%;
-    padding: 0;
-    hover-box-delay: 100;
-
-    Component {
-        text-color: var(--text-foreground);
-        alignment-x: left;
-    }
-
-    &:enabled:hover Component { text-color: var(--accent-text); }
+.mermil-action { width: 100%; height: 26; margin: 2; padding: 0 6; renderer: "Background"; background-color: #e9edf3; border-radius: 7;
+    Component { text-color: #41485b; alignment-x: left; }
+    &:enabled:hover { background-color: #ddd7ed; }
+    &:not(:enabled) { background-color: #e0e4eb; Component { text-color: #8a8e9c; } }
 }
-
-/* Kleine Klammer-Aktion am Reihenende, gleiche Aktion wie der Name. */
-.mermil-copy-icon {
-    width: 14; height: 14;
-    alignment-y: center;
-    margin-left: 2;
-    renderer: "Background";
-    background-color: 0;
-    hover-box-delay: 100;
-
-    Icon {
-        width: 10; height: width;
-        alignment-x: center; alignment-y: center;
-    }
-
-    &:enabled:hover { background-color: var(--surface-3); }
+.mermil-primary { background-color: #7862b3; Component { text-color: white; }
+    &:enabled:hover { background-color: #69519f; }
+    &:not(:enabled) { background-color: #c1b9d6; }
 }
-
-/* ---- Abschnittsmarke, Hinweiszeilen, Detailzeilen ---- */
-.mermil-section {
-    width: 100%; height: 14; padding-left: 4; margin-top: 6;
-    font-size: small;
-    text-color: var(--text-muted);
-    background-color: 0;
-}
-.mermil-line {
-    width: 100%; height: 15; padding-left: 8; padding-right: 8;
-    text-color: var(--text-body);
-    background-color: 0;
-}
-.mermil-row-detail {
-    width: 100%; height: 14; padding-left: 16;
-    font-size: small;
-    overflow-strategy: clip;
-    text-color: var(--text-muted);
-    background-color: 0;
-}
-
-/* ---- Aktionen als Zeilen statt Tasten ---- */
-.mermil-action {
-    width: 100%; height: 22;
-    renderer: "Background";
-    background-color: 0;
-    border-radius: var(--radius-slot);
-    padding: 0 8 0 8;
-    background-color-transition-duration: 120;
-
-    Component {
-        text-color: var(--text-secondary);
-        alignment-x: left;
-    }
-
-    &:enabled:hover {
-        background-color: var(--surface-2);
-
-        Component { text-color: var(--text-foreground); }
-    }
-
-    &:not(:enabled) {
-        background-color: 0;
-
-        Component { text-color: var(--text-disabled); }
-    }
-}
-
-/* ---- Einstellungen ---- */
-.mermil-setting {
-    width: 100%; height: 26;
-    orientation: horizontal;
-    renderer: "Background";
-    background-color: var(--surface-1);
-    border-radius: var(--radius-slot);
-    padding: 0 8 0 8;
-    background-color-transition-duration: 120;
-
-    &:hover { background-color: var(--surface-2); }
-}
-.mermil-setting-label {
-    height: 26; padding-right: 8;
-    alignment-y: center;
-    overflow-strategy: clip;
-    text-color: var(--text-body);
-}
+.mermil-setting { width: 100%; height: 30; orientation: horizontal; padding: 0 8; renderer: "Background"; background-color: #f2f4f8; border-radius: 7; }
+.mermil-setting-label { height: 30; alignment-y: center; overflow-strategy: clip; text-color: #303747; }
 .mermil-switch { width: 42; height: 20; alignment-y: center; }
-
-/* ---- Statuszeile ---- */
-.mermil-status {
-    left: 12; right: 12; bottom: 6; height: 12;
-    font-size: small;
-    text-color: var(--text-muted);
-    background-color: 0;
-}
+.mermil-skin-grid { width: 100%; height: fit-content; }
+.mermil-sighting { width: 100%; height: 86; padding: 4; renderer: "Background"; background-color: #f2f4f8; border-radius: 8; }
+.mermil-status { left: 14; right: 14; bottom: 7; height: 12; font-size: small; text-color: #656c80; overflow-strategy: clip; }

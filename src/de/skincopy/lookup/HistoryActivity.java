@@ -45,6 +45,12 @@ public final class HistoryActivity extends SimpleActivity {
     private boolean started;
     private boolean historyRequested;
     private boolean observedBusy;
+    private de.skincopy.SkinData profileSkin;
+    private String previewStatus = "Noch kein Spieler ausgewaehlt.";
+    private boolean backView;
+    private int previewRequest;
+    private boolean downloadBusy;
+    private boolean narrow;
     private ButtonWidget searchButton;
     private ComponentWidget statusWidget;
 
@@ -70,40 +76,51 @@ public final class HistoryActivity extends SimpleActivity {
         document().addChild(brand);
         addText("MERMIL", "mermil-title", NamedTextColor.LIGHT_PURPLE);
         addText("PARADIS", "mermil-subtitle", NamedTextColor.GRAY);
-        addText("0.3.1", "mermil-version", NamedTextColor.GRAY);
-        nav("History", "history", "nav-one");
-        nav("Profil", "profile", "nav-two");
-        nav("Skins", "skins", "nav-three");
-        nav("Einstellungen", "settings", "nav-four");
-        boolean playerTab = tab.equals("history") || tab.equals("profile");
+        boolean playerTab = !tab.equals("skins") && !tab.equals("settings");
+        narrow = api.minecraft().minecraftWindow().getScaledWidth() < 560;
+        headerAction("Mein Skin", "skins", "mermil-own");
+        headerAction("Einstellungen", "settings", "mermil-options");
         searchButton = null;
         if (playerTab) {
-        TextFieldWidget field = new TextFieldWidget();
-        field.maximalLength(36);
-        field.placeholder(Component.text("Spielername / UUID"));
-        field.setText(input);
-        field.updateListener(value -> input = value);
-        field.submitHandler(this::search);
-        field.addId("mermil-input");
-        document().addChild(field);
-        searchButton = ButtonWidget.text("Suchen", () -> search(field.getText()));
-        searchButton.addId("mermil-search");
-        searchButton.setEnabled(canSearch());
-        document().addChild(searchButton);
+            TextFieldWidget field = new TextFieldWidget();
+            field.maximalLength(36);
+            field.placeholder(Component.text("Spielername oder UUID suchen"));
+            field.setText(input);
+            field.updateListener(value -> input = value);
+            field.submitHandler(this::search);
+            field.addId("mermil-input");
+            soft(field, true);
+            document().addChild(field);
+            searchButton = ButtonWidget.text("Suchen", () -> search(field.getText()));
+            searchButton.addId("mermil-search");
+            searchButton.setEnabled(canSearch());
+            document().addChild(searchButton);
+            identity();
+        } else {
+            headerAction("Zum Profil", "profile", "mermil-return");
         }
-        statusWidget = addText(status, "mermil-status", NamedTextColor.WHITE);
-        if (playerTab) identity();
-
-        VerticalListWidget<Widget> list = new VerticalListWidget<>();
-        list.addId("mermil-list");
-        list.selectable().set(false);
-        list.spaceBetweenEntries().set(on(config().compactHistory()) ? 1f : 4f);
-        switch (tab) {
-            case "profile" -> profile(list);
-            case "skins" -> skins(list);
-            case "settings" -> settings(list);
-            default -> history(list);
-        }
+        statusWidget = addText(status, "mermil-status", NamedTextColor.DARK_GRAY);
+        VerticalListWidget<Widget> list = stack("mermil-list");
+        if (playerTab) {
+            VerticalListWidget<Widget> card = stack("mermil-preview-card");
+            if (narrow) card.addId("mermil-stacked");
+            preview(card);
+            VerticalListWidget<Widget> content = stack("mermil-details-card");
+            profileTabs(content);
+            switch (tab) {
+                case "history" -> history(content);
+                case "skinHistory" -> skinHistory(content);
+                default -> profile(content);
+            }
+            if (narrow) {
+                list.addChild(card); list.addChild(content);
+            } else {
+                FlexibleContentWidget columns = new FlexibleContentWidget();
+                columns.addId("mermil-columns");
+                columns.addContent(card); columns.addFlexibleContent(content);
+                list.addChild(columns);
+            }
+        } else if (tab.equals("settings")) settings(list); else skins(list);
         ScrollWidget scroll = new ScrollWidget(list);
         scroll.addId("mermil-scroll", playerTab ? "mermil-player-content" : "mermil-tools-content");
         document().addChild(scroll);
@@ -135,6 +152,7 @@ public final class HistoryActivity extends SimpleActivity {
         ComponentWidget widget = ComponentWidget.text(text, color);
         widget.addId(id);
         widget.clippingTextTooltip().set(true);
+        widget.allowColors().set(false);
         document().addChild(widget);
         return widget;
     }
@@ -142,21 +160,120 @@ public final class HistoryActivity extends SimpleActivity {
         ComponentWidget widget = ComponentWidget.component(component);
         widget.addId(id);
         widget.clippingTextTooltip().set(true);
+        widget.allowColors().set(false);
         document().addChild(widget);
     }
-    private void nav(String label, String target, String id) {
-        ButtonWidget button = ButtonWidget.text(label, () -> {
-            tab = target;
-            refresh();
-            if (tab.equals("history") && selectedUuid != null && !historyRequested) loadHistory(generation);
-        });
-        button.addId("mermil-nav", id);
-        if (tab.equals(target)) button.addId("mermil-nav-active");
+    /** An independent scrolling card; short screens keep every action reachable. */
+    private static VerticalListWidget<Widget> stack(String id) {
+        VerticalListWidget<Widget> list = new VerticalListWidget<>();
+        list.addId(id);
+        list.selectable().set(false);
+        if (id.endsWith("card") || id.equals("mermil-sighting")) soft(list, false);
+        list.spaceBetweenEntries().set(4f);
+        return list;
+    }
+    /** Paired light/dark shadows give cards a soft raised or inset surface. */
+    private static void soft(net.labymod.api.client.gui.screen.widget.AbstractWidget<?> widget, boolean inset) {
+        widget.shadows = new net.labymod.api.client.gui.screen.widget.attributes.Shadow[] {
+            new net.labymod.api.client.gui.screen.widget.attributes.Shadow(inset, -2f, -2f, 0f, 5f, 0xBFFFFFFF),
+            new net.labymod.api.client.gui.screen.widget.attributes.Shadow(inset, 2f, 2f, 0f, 5f, 0x30818A9E)
+        };
+    }
+    private void headerAction(String label, String target, String id) {
+        ButtonWidget button = ButtonWidget.text(label, () -> switchTab(target));
+        button.addId("mermil-header-action", id);
         document().addChild(button);
+    }
+    private void switchTab(String target) {
+        tab = target; refresh();
+        if ((tab.equals("history") || tab.equals("skinHistory")) && selectedUuid != null && !historyRequested)
+            loadHistory(generation);
+    }
+    private void profileTabs(VerticalListWidget<Widget> list) {
+        FlexibleContentWidget tabs = new FlexibleContentWidget();
+        tabs.addId("mermil-tabs");
+        String[] labels = {"Uebersicht", "Namen", "Skins"};
+        String[] targets = {"profile", "history", "skinHistory"};
+        for (int i = 0; i < labels.length; i++) {
+            String target = targets[i];
+            ButtonWidget button = ButtonWidget.text(labels[i], () -> switchTab(target));
+            button.addId("mermil-tab");
+            if (tab.equals(target)) button.addId("mermil-tab-active");
+            tabs.addFlexibleContent(button);
+        }
+        list.addChild(tabs);
+    }
+    private void preview(VerticalListWidget<Widget> list) {
+        title(list, "Aktueller Skin");
+        if (selectedUuid != null && profileSkin != null) {
+            var model = new net.labymod.core.client.gui.screen.widget.widgets.customization.PlayerModelWidget();
+            model.addId("mermil-skin-model");
+            model.setRenderCosmetics(false);
+            model.setScrolling(false);
+            model.updateSkinTextureFrom(selectedUuid);
+            model.turnTo(backView ? 180f : 0f, 0);
+            list.addChild(model);
+            button(list, backView ? "Vorderseite zeigen" : "Rueckseite zeigen", () -> {
+                backView = !backView; refresh();
+            }, true);
+            line(list, profileSkin.slim() ? "Slim / schmale Arme" : "Classic / breite Arme", NamedTextColor.DARK_GRAY);
+        }
+        line(list, previewStatus, NamedTextColor.DARK_GRAY);
+        de.skincopy.SkinData skin = profileSkin;
+        button(list, addon.busy() ? "Uebernahme laeuft ..." : "Skin uebernehmen",
+                () -> addon.applyProfileSkin(skin), skin != null && addon.enabledNow()
+                        && on(config().skinCopyEnabled()) && !addon.busy()).addId("mermil-primary");
+        UUID id = selectedUuid;
+        button(list, downloadBusy ? "Wird gespeichert ..." : "PNG herunterladen",
+                () -> download(skin, id), skin != null && id != null && !downloadBusy);
+        if (skin != null) button(list, "Textur-Link kopieren", () -> copy(skin.url()), true);
+    }
+    /** Only a validated Minecraft PNG is written; filenames contain the UUID, never service text. */
+    private void download(de.skincopy.SkinData skin, UUID id) {
+        if (skin == null || id == null || downloadBusy) return;
+        downloadBusy = true; refresh();
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            String message;
+            try {
+                byte[] png = de.skincopy.SkinDownload.download(skin.url());
+                var directory = java.nio.file.Path.of("mermil-paradis", "skins");
+                java.nio.file.Files.createDirectories(directory);
+                java.nio.file.Files.write(directory.resolve(id + ".png"), png);
+                message = "PNG gespeichert: mermil-paradis/skins/" + id + ".png";
+            } catch (Exception ignored) { message = "PNG konnte nicht gespeichert werden."; }
+            String result = message;
+            api.minecraft().executeNextTick(() -> { downloadBusy = false; status = result; refresh(); });
+        });
+    }
+    private void skinHistory(VerticalListWidget<Widget> list) {
+        title(list, "Skin-Historie");
+        if (!on(config().lookupEnabled())) { line(list, "History ist deaktiviert.", NamedTextColor.GRAY); return; }
+        if (selectedUuid == null) { line(list, "Zuerst einen Spieler suchen.", NamedTextColor.GRAY); return; }
+        sourceRow(list, Source.REBEL);
+        Result result = results.get(Source.REBEL);
+        if (!sourceEnabled(Source.REBEL) || result == null || !result.success()) return;
+        if (result.skins().isEmpty()) { line(list, "Keine oeffentlichen Skin-Sichtungen.", NamedTextColor.GRAY); return; }
+        line(list, "Diese Quelle liefert Metadaten ohne Skin-Bilder.", NamedTextColor.DARK_GRAY);
+        var grid = new net.labymod.api.client.gui.screen.widget.widgets.layout.TilesGridWidget<VerticalListWidget<Widget>>();
+        grid.addId("mermil-skin-grid");
+        grid.tilesPerLine().set(narrow ? 1 : 2);
+        grid.tileHeight().set(86f);
+        grid.spaceBetweenEntries().set(6f);
+        for (Skin skin : result.skins()) {
+            VerticalListWidget<Widget> card = stack("mermil-sighting");
+            title(card, skin.slim() == null ? "Modell unbekannt" : skin.slim() ? "Slim" : "Classic");
+            line(card, "Vorschau nicht verfuegbar", NamedTextColor.GRAY);
+            detail(card, "Von: " + skin.firstSeen(), NamedTextColor.DARK_GRAY);
+            detail(card, "Bis: " + skin.lastSeen(), NamedTextColor.DARK_GRAY);
+            detail(card, skin.active() == null ? "Status unbekannt" : skin.active() ? "Aktiv laut Quelle" : "Archiviert", NamedTextColor.DARK_GRAY);
+            grid.addTile(card);
+        }
+        list.addChild(grid);
     }
     private static void line(VerticalListWidget<Widget> list, String text, TextColor color) {
         ComponentWidget widget = ComponentWidget.text(text, color);
         widget.clippingTextTooltip().set(true);
+        widget.allowColors().set(false);
         widget.addId("mermil-line");
         list.addChild(widget);
     }
@@ -166,12 +283,14 @@ public final class HistoryActivity extends SimpleActivity {
                 NamedTextColor.GRAY);
         widget.addId("mermil-section");
         widget.clippingTextTooltip().set(true);
+        widget.allowColors().set(false);
         list.addChild(widget);
     }
     /** Muted continuation of a row: documentation text instead of a full-width banner. */
     private static void detail(VerticalListWidget<Widget> list, String text, TextColor color) {
         ComponentWidget widget = ComponentWidget.text(text, color);
         widget.clippingTextTooltip().set(true);
+        widget.allowColors().set(false);
         widget.addId("mermil-row-detail");
         list.addChild(widget);
     }
@@ -183,6 +302,7 @@ public final class HistoryActivity extends SimpleActivity {
         ComponentWidget left = ComponentWidget.text(name, nameColor);
         left.addId("mermil-row-name");
         left.clippingTextTooltip().set(true);
+        left.allowColors().set(false);
         flex.addFlexibleContent(left);
         right(list, flex, meta);
         list.addChild(flex);
@@ -215,6 +335,7 @@ public final class HistoryActivity extends SimpleActivity {
             ComponentWidget part = ComponentWidget.component(meta);
             part.addId("mermil-row-meta");
             part.clippingTextTooltip().set(true);
+            part.allowColors().set(false);
             flex.addContent(part);
         }
     }
@@ -222,6 +343,7 @@ public final class HistoryActivity extends SimpleActivity {
         ButtonWidget widget = ButtonWidget.text(label, click::run);
         widget.addId("mermil-action");
         widget.setEnabled(enabled);
+        soft(widget, false);
         list.addChild(widget);
         return widget;
     }
@@ -240,7 +362,7 @@ public final class HistoryActivity extends SimpleActivity {
         title(list, "Namenshistorie");
         for (Source source : Source.values()) sourceRow(list, source);
         if (on(config().compareHistory())) compareList(list); else sourceList(list);
-        rebelSkins(list);
+
         detail(list, "Namen antippen kopiert sie. Sichtungsdatum ist keine exakte Aenderungszeit.",
                 NamedTextColor.DARK_GRAY);
     }
@@ -277,15 +399,16 @@ public final class HistoryActivity extends SimpleActivity {
         for (HistoryComparison.Row row : rows) {
             TextColor labyColor = row.laby().isEmpty() ? NamedTextColor.DARK_GRAY : NamedTextColor.GRAY;
             TextColor rebelColor = row.rebel().isEmpty() ? NamedTextColor.DARK_GRAY : NamedTextColor.GRAY;
-            Component meta = Component.text("Laby " + (row.laby().isEmpty() ? "-" : row.laby().size()), labyColor)
+            Component meta = Component.text("Laby " + (row.laby().isEmpty() ? HistoryComparison.absence(results.get(Source.LABY), sourceEnabled(Source.LABY)) : row.laby().size()), labyColor)
                     .append(Component.text("   ", NamedTextColor.DARK_GRAY))
-                    .append(Component.text("Rebel " + (row.rebel().isEmpty() ? "-" : row.rebel().size()), rebelColor));
+                    .append(Component.text("Rebel " + (row.rebel().isEmpty() ? HistoryComparison.absence(results.get(Source.REBEL), sourceEnabled(Source.REBEL)) : row.rebel().size()), rebelColor));
             row(list, row.name(), meta, row.name());
             dates(list, "Laby", row.laby(), true);
             dates(list, "Rebel", row.rebel(), false);
         }
     }
     private void dates(VerticalListWidget<Widget> list, String sourceLabel, List<Name> names, boolean changes) {
+        if (on(config().compactHistory())) return;
         for (Name name : names) detail(list, sourceLabel + (changes ? " - geaendert: "
                 + (name.accurate() ? " " : " ~ ") + name.date()
                 : " - zuletzt genutzt: " + name.date()), NamedTextColor.DARK_GRAY);
@@ -316,6 +439,7 @@ public final class HistoryActivity extends SimpleActivity {
         }
     }
     private void profile(VerticalListWidget<Widget> list) {
+        title(list, "Spielerprofil");
         if (!on(config().quickActionsEnabled())) {
             line(list, "Profil-Schnellaktionen sind in Einstellungen deaktiviert.", NamedTextColor.GRAY); return;
         }
@@ -391,6 +515,7 @@ public final class HistoryActivity extends SimpleActivity {
         ComponentWidget name = ComponentWidget.text(label, NamedTextColor.WHITE);
         name.addId("mermil-setting-label");
         name.clippingTextTooltip().set(true);
+        name.allowColors().set(false);
         row.addFlexibleContent(name);
         var control = net.labymod.api.client.gui.screen.widget.widgets.input.SwitchWidget.text("AN", "AUS", value -> {
             property.set(value); addon.saveSettings();
@@ -412,7 +537,7 @@ public final class HistoryActivity extends SimpleActivity {
         if (parsed == null && !validName(input)) { setStatus("Bitte einen Minecraft-Namen oder eine UUID eingeben."); return; }
         nextSearch = System.currentTimeMillis() + 2000;
         int request = ++generation;
-        selectedUuid = null;
+        selectedUuid = null; profileSkin = null; previewStatus = "Profil wird gesucht ...";
         selectedName = parsed == null ? input : null;
         results.clear(); historyRequested = false;
         if (parsed != null) { select(parsed, request); return; }
@@ -424,6 +549,16 @@ public final class HistoryActivity extends SimpleActivity {
     private void select(UUID uuid, int request) {
         if (!addon.enabledNow() || request != generation) return;
         selectedUuid = uuid;
+        profileSkin = null; backView = false; previewStatus = "Skin wird geladen ...";
+        int preview = ++previewRequest;
+        java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            try { return ProfileSkin.fetch(uuid); } catch (Exception ignored) { return null; }
+        }).thenAccept(skin -> api.minecraft().executeNextTick(() -> {
+            if (preview != previewRequest || !uuid.equals(selectedUuid) || !addon.enabledNow()) return;
+            profileSkin = skin;
+            previewStatus = skin == null ? "Kein ladbarer oeffentlicher Skin." : "Oeffentlicher Minecraft-Skin";
+            refresh();
+        }));
         results.clear(); historyRequested = false;
         status = "Profil geladen. " + (selectedName == null ? "Aktueller Name wird gesucht ..." : selectedName);
         refresh();
@@ -435,7 +570,7 @@ public final class HistoryActivity extends SimpleActivity {
                 }
             }));
         } catch (RuntimeException ignored) { }
-        if (tab.equals("history")) loadHistory(request);
+        if (tab.equals("history") || tab.equals("skinHistory")) loadHistory(request);
     }
     private boolean sourceEnabled(Source source) {
         return on(source == Source.LABY ? config().labySourceEnabled() : config().rebelSourceEnabled());
@@ -453,6 +588,6 @@ public final class HistoryActivity extends SimpleActivity {
     @Override public void tick() {
         super.tick();
         if (searchButton != null) searchButton.setEnabled(canSearch());
-        if (observedBusy != addon.busy()) { observedBusy = addon.busy(); if (tab.equals("skins")) refresh(); }
+        if (observedBusy != addon.busy()) { observedBusy = addon.busy(); refresh(); }
     }
 }

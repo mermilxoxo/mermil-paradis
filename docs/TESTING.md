@@ -1,6 +1,6 @@
 # Testing and current limits
 
-Target: LabyMod 4, Minecraft Java 1.21.11, Java 21. Version: 0.3.1.
+Target: LabyMod 4, Minecraft Java 1.21.11, Java 21. Version: 0.4.0.
 
 ## Reproduce isolated tests
 
@@ -30,13 +30,17 @@ Tests cover:
 - `LiveSkinOverrideTest`: own player only, replacement instances, arm variant,
   preserving cape/elytra and clearing the override. Uses an isolated test double.
 
-These tests passed again for the 0.3.1 UI update. All 31 production classes passed a JVM
+The 0.4.0 checks include ProfileSkinTest for public profile identity binding,
+Slim parsing, texture URL restrictions, response bounds and malformed input. All 32 production classes passed a JVM
 verification/load check. A separate headless check confirmed that the installed
 native `DefaultLinkMetaLoader` accepts the three Activity style links, using a
 mocked API context. This is not a rendered UI test.
 
 ## Still requires a running game
 
+- Logo replacement: robot PNG could not be materialized; old logo is temporary.
+- Native Core PlayerModelWidget lifecycle, front/back rotation and actual skin appearance.
+- PNG download directory and skin adoption from searched profiles.
 - Opening and rendering the Mermil panel on different GUI scales/themes.
 - Real Laby.net/RebelCore API responses and availability.
 - Clipboard and browser actions.
