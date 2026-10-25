@@ -23,9 +23,8 @@ F8 wird nur ohne geoeffneten Bildschirm verarbeitet.
 
 ## Profilansicht in 0.4.2
 
-Helle Profilansicht mit weichen Karten und violettem Akzent. Breite Fenster zeigen
-Skin-Vorschau und Profilinformationen nebeneinander; unter 560 GUI-Einheiten
-werden die Karten gestapelt und gemeinsam gescrollt. Tabs trennen Uebersicht,
+Helle Profilansicht mit weichen Karten und violettem Akzent. Skin-Vorschau und Profilinformationen stehen in scrollbar angeordneten Abschnitten;
+Texte umbrechen entsprechend der verfuegbaren Breite. Tabs trennen Uebersicht,
 Namenshistorie und Skin-Sichtungen. Eigener Skin und Einstellungen sind separat.
 
 Die aktuelle Skin-Vorschau nutzt LabyMods nativen PlayerModelWidget ohne Cosmetics
