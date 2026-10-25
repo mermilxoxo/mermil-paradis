@@ -89,21 +89,24 @@ public final class HistoryActivity extends SimpleActivity {
             field.updateListener(value -> input = value);
             field.submitHandler(this::search);
             field.addId("mermil-input");
-            soft(field, true);
             document().addChild(field);
             searchButton = ButtonWidget.text("Suchen", () -> search(field.getText()));
             searchButton.addId("mermil-search");
             searchButton.setEnabled(canSearch());
             document().addChild(searchButton);
-            identity();
-        } else {
-            addText(tab.equals("home") ? "Deine Mermil-Zentrale" : tab.equals("settings") ? "Einstellungen" : "Dein Skin", "mermil-page-title", NamedTextColor.BLACK);
+
         }
-        statusWidget = addText(status, "mermil-status", NamedTextColor.DARK_GRAY);
         VerticalListWidget<Widget> list = stack("mermil-list");
+        statusWidget = ComponentWidget.text(status);
+        statusWidget.addId("mermil-line");
+        statusWidget.allowColors().set(false);
+        statusWidget.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
+        list.addChild(statusWidget);
         if (playerTab) {
             VerticalListWidget<Widget> card = stack("mermil-preview-card");
-            if (narrow) card.addId("mermil-stacked");
+            card.addId("mermil-stacked");
+            title(list, selectedUuid == null ? "Spieler suchen" : selectedName == null ? "Spielerprofil" : selectedName);
+            if (selectedUuid != null) line(list, "UUID: " + selectedUuid, NamedTextColor.BLACK);
             preview(card);
             VerticalListWidget<Widget> content = stack("mermil-details-card");
             profileTabs(content);
@@ -112,14 +115,8 @@ public final class HistoryActivity extends SimpleActivity {
                 case "skinHistory" -> skinHistory(content);
                 default -> profile(content);
             }
-            if (narrow) {
-                list.addChild(card); list.addChild(content);
-            } else {
-                FlexibleContentWidget columns = new FlexibleContentWidget();
-                columns.addId("mermil-columns");
-                columns.addContent(card); columns.addFlexibleContent(content);
-                list.addChild(columns);
-            }
+            list.addChild(content);
+            list.addChild(card);
         } else if (tab.equals("home")) dashboard(list);
         else if (tab.equals("settings")) settings(list); else skins(list);
         ScrollWidget scroll = new ScrollWidget(list);
@@ -153,6 +150,8 @@ public final class HistoryActivity extends SimpleActivity {
         ComponentWidget widget = ComponentWidget.text(text, color);
         widget.addId(id);
         widget.clippingTextTooltip().set(true);
+        widget.scaleToFit().set(false);
+        widget.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
         widget.allowColors().set(false);
         document().addChild(widget);
         return widget;
@@ -161,6 +160,8 @@ public final class HistoryActivity extends SimpleActivity {
         ComponentWidget widget = ComponentWidget.component(component);
         widget.addId(id);
         widget.clippingTextTooltip().set(true);
+        widget.scaleToFit().set(false);
+        widget.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
         widget.allowColors().set(false);
         document().addChild(widget);
     }
@@ -169,16 +170,9 @@ public final class HistoryActivity extends SimpleActivity {
         VerticalListWidget<Widget> list = new VerticalListWidget<>();
         list.addId(id);
         list.selectable().set(false);
-        if (id.endsWith("card") || id.equals("mermil-sighting")) soft(list, false);
+        list.squeezeHeight().set(false);
         list.spaceBetweenEntries().set(4f);
         return list;
-    }
-    /** Paired light/dark shadows give cards a soft raised or inset surface. */
-    private static void soft(net.labymod.api.client.gui.screen.widget.AbstractWidget<?> widget, boolean inset) {
-        widget.shadows = new net.labymod.api.client.gui.screen.widget.attributes.Shadow[] {
-            new net.labymod.api.client.gui.screen.widget.attributes.Shadow(inset, -2f, -2f, 0f, 5f, 0xBFFFFFFF),
-            new net.labymod.api.client.gui.screen.widget.attributes.Shadow(inset, 2f, 2f, 0f, 5f, 0x30818A9E)
-        };
     }
     private void headerAction(String label, String target, String id) {
         ButtonWidget button = ButtonWidget.text(label, () -> switchTab(target));
@@ -208,30 +202,21 @@ public final class HistoryActivity extends SimpleActivity {
     private void dashboard(VerticalListWidget<Widget> list) {
         title(list, "Alles an einem Ort");
         line(list, "Direktzugriff: F8 im Spiel oder /mp im Chat", NamedTextColor.BLACK);
-        var grid = new net.labymod.api.client.gui.screen.widget.widgets.layout.TilesGridWidget<VerticalListWidget<Widget>>();
-        grid.addId("mermil-dashboard");
-        grid.tilesPerLine().set(api.minecraft().minecraftWindow().getScaledWidth() < 420 ? 1 : 2);
-        grid.tileHeight().set(112f);
-        grid.spaceBetweenEntries().set(10f);
-        dashboardTile(grid, "Spielerprofil", "Profil und Links", "profile");
-        dashboardTile(grid, "Namenshistorie", "Namen aus mehreren Quellen", "history");
-        dashboardTile(grid, "Skin-Historie", "Archivierte Sichtungen", "skinHistory");
-        dashboardTile(grid, "Skin uebernehmen", "Skin ansehen und anwenden", "profile");
-        dashboardTile(grid, "Mein Skin", "Sicherung und Wiederherstellung", "skins");
-        dashboardTile(grid, "Einstellungen", "Funktionen und Quellen", "settings");
-        list.addChild(grid);
+        dashboardTile(list, "Spielerprofil", "Profil suchen, Links oeffnen und Daten kopieren", "profile");
+        dashboardTile(list, "Namenshistorie", "Fruehere Namen aus mehreren Quellen vergleichen", "history");
+        dashboardTile(list, "Skin-Historie", "Oeffentliche archivierte Skin-Sichtungen", "skinHistory");
+        dashboardTile(list, "Skin uebernehmen", "Profil suchen und aktuellen Skin anwenden", "profile");
+        dashboardTile(list, "Mein Skin", "Gesicherten Skin wiederherstellen", "skins");
+        dashboardTile(list, "Einstellungen", "Funktionen und Datenquellen verwalten", "settings");
         title(list, "Aktueller Stand");
         line(list, selectedUuid == null ? "Kein Spieler ausgewaehlt" : "Spieler: " + (selectedName == null ? selectedUuid : selectedName), NamedTextColor.BLACK);
         line(list, addon.busy() ? "Skin-Aenderung laeuft" : "Bereit", NamedTextColor.BLACK);
         line(list, addon.backupDescription(), NamedTextColor.BLACK);
     }
-    private void dashboardTile(net.labymod.api.client.gui.screen.widget.widgets.layout.TilesGridWidget<VerticalListWidget<Widget>> grid,
+    private void dashboardTile(VerticalListWidget<Widget> list,
                                String label, String description, String target) {
-        VerticalListWidget<Widget> card = stack("mermil-dashboard-card");
-        title(card, label);
-        line(card, description, NamedTextColor.BLACK);
-        button(card, "Oeffnen", () -> switchTab(target), true).addId("mermil-dashboard-open");
-        grid.addTile(card);
+        button(list, label, () -> switchTab(target), true).addId("mermil-dashboard-open");
+        detail(list, description, NamedTextColor.DARK_GRAY);
     }
     private void preview(VerticalListWidget<Widget> list) {
         title(list, "Aktueller Skin");
@@ -284,25 +269,21 @@ public final class HistoryActivity extends SimpleActivity {
         if (!sourceEnabled(Source.REBEL) || result == null || !result.success()) return;
         if (result.skins().isEmpty()) { line(list, "Keine oeffentlichen Skin-Sichtungen.", NamedTextColor.GRAY); return; }
         line(list, "Diese Quelle liefert Metadaten ohne Skin-Bilder.", NamedTextColor.DARK_GRAY);
-        var grid = new net.labymod.api.client.gui.screen.widget.widgets.layout.TilesGridWidget<VerticalListWidget<Widget>>();
-        grid.addId("mermil-skin-grid");
-        grid.tilesPerLine().set(narrow ? 1 : 2);
-        grid.tileHeight().set(136f);
-        grid.spaceBetweenEntries().set(6f);
         for (Skin skin : result.skins()) {
-            VerticalListWidget<Widget> card = stack("mermil-sighting");
+            VerticalListWidget<Widget> card = stack("mermil-history-card");
             title(card, skin.slim() == null ? "Modell unbekannt" : skin.slim() ? "Slim" : "Classic");
             line(card, "Vorschau nicht verfuegbar", NamedTextColor.GRAY);
             detail(card, "Von: " + skin.firstSeen(), NamedTextColor.DARK_GRAY);
             detail(card, "Bis: " + skin.lastSeen(), NamedTextColor.DARK_GRAY);
             detail(card, skin.active() == null ? "Status unbekannt" : skin.active() ? "Aktiv laut Quelle" : "Archiviert", NamedTextColor.DARK_GRAY);
-            grid.addTile(card);
+            list.addChild(card);
         }
-        list.addChild(grid);
     }
     private static void line(VerticalListWidget<Widget> list, String text, TextColor color) {
         ComponentWidget widget = ComponentWidget.text(text, color);
         widget.clippingTextTooltip().set(true);
+        widget.scaleToFit().set(false);
+        widget.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
         widget.allowColors().set(false);
         widget.addId("mermil-line");
         list.addChild(widget);
@@ -313,6 +294,8 @@ public final class HistoryActivity extends SimpleActivity {
                 NamedTextColor.GRAY);
         widget.addId("mermil-section");
         widget.clippingTextTooltip().set(true);
+        widget.scaleToFit().set(false);
+        widget.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
         widget.allowColors().set(false);
         list.addChild(widget);
     }
@@ -320,6 +303,8 @@ public final class HistoryActivity extends SimpleActivity {
     private static void detail(VerticalListWidget<Widget> list, String text, TextColor color) {
         ComponentWidget widget = ComponentWidget.text(text, color);
         widget.clippingTextTooltip().set(true);
+        widget.scaleToFit().set(false);
+        widget.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
         widget.allowColors().set(false);
         widget.addId("mermil-row-detail");
         list.addChild(widget);
@@ -327,15 +312,13 @@ public final class HistoryActivity extends SimpleActivity {
     /** Table row: value on the left, meta on the right, quiet surface between. */
     private static void row(VerticalListWidget<Widget> list, String name, TextColor nameColor,
                             Component meta) {
-        FlexibleContentWidget flex = new FlexibleContentWidget();
-        flex.addId("mermil-row");
-        ComponentWidget left = ComponentWidget.text(name, nameColor);
-        left.addId("mermil-row-name");
-        left.clippingTextTooltip().set(true);
-        left.allowColors().set(false);
-        flex.addFlexibleContent(left);
-        right(list, flex, meta);
-        list.addChild(flex);
+        Component value = Component.text(name, nameColor);
+        if (meta != null) value = value.append(Component.text("  ")).append(meta);
+        ComponentWidget text = ComponentWidget.component(value);
+        text.addId("mermil-line");
+        text.allowColors().set(false);
+        text.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
+        list.addChild(text);
     }
 
     /**
@@ -345,16 +328,14 @@ public final class HistoryActivity extends SimpleActivity {
      */
     private void row(VerticalListWidget<Widget> list, String name, Component meta,
                      String clipboardValue) {
-        FlexibleContentWidget flex = new FlexibleContentWidget();
-        flex.addId("mermil-row");
-        ButtonWidget copy = ButtonWidget.text(name, () -> copy(clipboardValue));
-        copy.addId("mermil-copy");
-        flex.addFlexibleContent(copy);
-        right(list, flex, meta);
-        ButtonWidget shortcut = ButtonWidget.icon(COPY_ICON, () -> copy(clipboardValue));
-        shortcut.addId("mermil-copy-icon");
-        flex.addContent(shortcut);
-        list.addChild(flex);
+        button(list, name, () -> copy(clipboardValue), true);
+        if (meta != null) {
+            ComponentWidget text = ComponentWidget.component(meta);
+            text.addId("mermil-row-detail");
+            text.allowColors().set(false);
+            text.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
+            list.addChild(text);
+        }
     }
     /** LabyMod's own clipboard glyph from its default icon pack. */
     private static final Icon COPY_ICON = Icon.texture(
@@ -373,7 +354,7 @@ public final class HistoryActivity extends SimpleActivity {
         ButtonWidget widget = ButtonWidget.text(label, click::run);
         widget.addId("mermil-action");
         widget.setEnabled(enabled);
-        soft(widget, false);
+        widget.scaleToFit().set(false);
         list.addChild(widget);
         return widget;
     }
@@ -545,6 +526,7 @@ public final class HistoryActivity extends SimpleActivity {
         ComponentWidget name = ComponentWidget.text(label, NamedTextColor.WHITE);
         name.addId("mermil-setting-label");
         name.clippingTextTooltip().set(true);
+        name.overflowStrategy().set(net.labymod.api.client.render.font.TextOverflowStrategy.WRAP);
         name.allowColors().set(false);
         row.addFlexibleContent(name);
         var control = net.labymod.api.client.gui.screen.widget.widgets.input.SwitchWidget.text("AN", "AUS", value -> {

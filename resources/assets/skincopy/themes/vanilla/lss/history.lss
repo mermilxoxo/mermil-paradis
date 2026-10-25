@@ -1,84 +1,45 @@
-// Mermil Paradis 0.4: light profile workspace, soft raised cards, inset search.
-Document { background-color: #e9edf3; }
-Component { shadow: false; text-color: #303747; }
-.mermil-icon { left: 14; top: 12; width: 26; height: 26; object-fit: contain; }
-.mermil-title { left: 48; top: 12; width: 100; height: 14; text-color: #37324b; }
-.mermil-subtitle { left: 49; top: 28; width: 100; height: 10; font-size: medium; text-color: #77758b; }
-.mermil-header-action {
-    top: 14; height: 24; renderer: "Background"; background-color: #e9edf3;
-    border-radius: 7;
-    Component { text-color: #454359; }
-    &:enabled:hover { background-color: #ddd9ec; }
-}
-.mermil-own { right: 106; width: 76; }
-.mermil-options { right: 14; width: 86; }
-.mermil-return { left: 14; width: 90; top: 48; }
-.mermil-input { left: 14; right: 94; top: 50; height: 26; background-color: #e2e7ef; border: none; border-radius: 8; text-color: #303747; text-shadow: false; }
-.mermil-search { right: 14; top: 50; width: 72; height: 26; renderer: "Background"; background-color: #7862b3; border-radius: 8;
-    Component { text-color: white; }
-    &:enabled:hover { background-color: #69519f; }
-    &:not(:enabled) { background-color: #c1b9d6; }
-}
-.mermil-identity { left: 16; right: 14; top: 86; height: 18; font-size: large; text-color: #303747; }
-.mermil-identity-sub { left: 16; right: 14; top: 108; height: 10; font-size: medium; text-color: #41495b; }
-.mermil-scroll { left: 8; right: 8; bottom: 26; padding: 7; background-color: 0; }
-.mermil-player-content { top: 124; }
+// 0.4.2: flow layout, natural text height, separate brand/navigation/search rows.
+Document { background-color: #edf0f5; }
+Component { shadow: false; font-size: 1; text-color: #252b3b; }
+.mermil-icon { left: 12; top: 8; width: 30; height: 30; object-fit: contain; }
+.mermil-title { left: 52; top: 9; right: 12; height: 14; text-color: #3f2b69; }
+.mermil-subtitle { left: 52; top: 25; right: 12; height: 12; text-color: #444d61; }
+.mermil-header-action { top: 46; height: 24; renderer: "Background"; background-color: #dadfee; border-radius: 5; }
+.mermil-own { left: 12; right: 51%; }
+.mermil-options { left: 51%; right: 12; }
+.mermil-input { left: 12; right: 94; top: 80; height: 26; background-color: #ffffff; border-radius: 5; text-color: #252b3b; text-shadow: false; }
+.mermil-search { right: 12; top: 80; width: 74; height: 26; renderer: "Background"; background-color: #d6c9ec; border-radius: 5; }
+.mermil-scroll { left: 8; right: 8; bottom: 10; padding: 4; background-color: 0; }
+.mermil-player-content { top: 114; }
 .mermil-tools-content { top: 80; }
-.mermil-list { width: 100%; height: fit-content; }
-.mermil-columns { width: 100%; height: fit-content; orientation: horizontal; space-between-entries: 12; }
-.mermil-preview-card { width: 160; height: fit-content; padding: 8; renderer: "Background"; background-color: #e9edf3; border-radius: 12; }
-.mermil-preview-card.mermil-stacked { width: 100%; }
-.mermil-details-card { width: 100%; height: fit-content; padding: 8; renderer: "Background"; background-color: #e9edf3; border-radius: 12; }
-.mermil-skin-model { width: 100%; height: 144; base-scale: 0.9; center-model: true; }
-.mermil-tabs { width: 100%; height: 26; orientation: horizontal; space-between-entries: 4; margin-bottom: 8; }
-.mermil-tab { width: 100%; height: 26; renderer: "Background"; background-color: #e0e5ed; border-radius: 8;
-    Component { text-color: #626578; }
-    &:enabled:hover { background-color: #d6dce6; }
-    &.mermil-tab-active { background-color: #dcd5ee; Component { text-color: #554178; } }
+.mermil-list { width: 100%; height: fit-content; space-between-entries: 6; squeeze-height: false; }
+.mermil-preview-card, .mermil-details-card, .mermil-history-card {
+    width: 100%; height: fit-content; padding: 8; margin-bottom: 8;
+    renderer: "Background"; background-color: #ffffff; border-radius: 6; squeeze-height: false;
 }
-.mermil-section { width: 100%; height: 18; margin-top: 6; padding-left: 5; font-size: medium; text-color: #625777; }
-.mermil-line { width: 100%; height: 18; padding: 0 5; text-color: #454d60; overflow-strategy: clip; }
-.mermil-row-detail { width: 100%; height: 14; padding-left: 8; font-size: medium; text-color: #444c60; overflow-strategy: clip; }
-.mermil-row { width: 100%; height: 24; orientation: horizontal; padding: 0 6; renderer: "Background"; background-color: #f2f4f8; border-radius: 5; }
-.mermil-row-name { alignment-y: center; overflow-strategy: clip; text-color: #303747; }
-.mermil-row-meta { alignment-y: center; margin-left: 5; max-width: 45%; overflow-strategy: clip; text-color: #444c60; }
-.mermil-copy { width: 100%; height: 100%; renderer: "Background"; background-color: 0; padding: 0;
-    Component { alignment-x: left; text-color: #51426c; }
-    &:enabled:hover { background-color: #e3ddef; }
+.mermil-skin-model { width: 100%; height: 144; center-model: true; base-scale: 0.9; }
+.mermil-tabs { width: 100%; height: 28; orientation: horizontal; space-between-entries: 4; }
+.mermil-tab { width: 100%; height: 28; renderer: "Background"; background-color: #e3e7f0; border-radius: 4;
+    &.mermil-tab-active { background-color: #cdbce6; }
 }
-.mermil-copy-icon { width: 14; height: 14; alignment-y: center; margin-left: 3; renderer: "Background"; background-color: 0;
-    Icon { width: 10; height: 10; alignment-x: center; alignment-y: center; }
+.mermil-section { width: 100%; height: fit-content; min-height: 18; margin-top: 6; padding: 2 4; font-size: 1; text-color: #3f2b69; overflow-strategy: wrap; }
+.mermil-line { width: 100%; height: fit-content; min-height: 18; padding: 3 4; overflow-strategy: wrap; text-color: #252b3b; }
+.mermil-row-detail { width: 100%; height: fit-content; min-height: 16; padding: 2 4; font-size: 1; overflow-strategy: wrap; text-color: #444d61; }
+.mermil-row { width: 100%; height: 28; orientation: horizontal; renderer: "Background"; background-color: #e3e7f0; padding: 0 4; border-radius: 4; }
+.mermil-row-name { alignment-y: center; overflow-strategy: clip; text-color: #252b3b; }
+.mermil-row-meta { alignment-y: center; margin-left: 4; max-width: 45%; text-color: #444d61; overflow-strategy: clip; }
+.mermil-action, .mermil-copy { width: 100%; height: 30; renderer: "Background"; background-color: #e3e7f0; padding: 0 6; border-radius: 5;
+    &:enabled:hover { background-color: #d6c9ec; }
+    &:not(:enabled) { background-color: #e5e7eb; Component { text-color: #626879; } }
 }
-.mermil-action { width: 100%; height: 26; margin: 2; padding: 0 6; renderer: "Background"; background-color: #e9edf3; border-radius: 7;
-    Component { text-color: #41485b; alignment-x: left; }
-    &:enabled:hover { background-color: #ddd7ed; }
-    &:not(:enabled) { background-color: #e0e4eb; Component { text-color: #8a8e9c; } }
+.mermil-primary, .mermil-dashboard-open { background-color: #d6c9ec; }
+// Buttons wrap their label in a HorizontalListEntry: size that wrapper explicitly.
+.mermil-action .button-text, .mermil-copy .button-text, .mermil-header-action .button-text, .mermil-tab .button-text, .mermil-search .button-text {
+    width: 100%; height: 100%;
+    Component { width: 100%; height: 100%; font-size: 1; scale-to-fit: false; text-color: #252b3b; alignment-x: center; alignment-y: center; }
 }
-.mermil-primary { background-color: #7862b3; Component { text-color: white; }
-    &:enabled:hover { background-color: #69519f; }
-    &:not(:enabled) { background-color: #c1b9d6; }
-}
-.mermil-setting { width: 100%; height: 30; orientation: horizontal; padding: 0 8; renderer: "Background"; background-color: #f2f4f8; border-radius: 7; }
-.mermil-setting-label { height: 30; alignment-y: center; overflow-strategy: clip; text-color: #303747; }
+.mermil-copy-icon { width: 18; height: 18; alignment-y: center; Icon { width: 12; height: 12; alignment-x: center; alignment-y: center; } }
+.mermil-setting { width: 100%; height: fit-content; min-height: 34; orientation: horizontal; padding: 6; renderer: "Background"; background-color: #ffffff; }
+.mermil-setting-label { height: fit-content; min-height: 22; padding-right: 8; overflow-strategy: wrap; text-color: #252b3b; }
 .mermil-switch { width: 42; height: 20; alignment-y: center; }
-.mermil-skin-grid { width: 100%; height: fit-content; }
-.mermil-sighting { width: 100%; height: 136; padding: 4; renderer: "Background"; background-color: #f2f4f8; border-radius: 8; }
-.mermil-status { left: 14; right: 14; bottom: 7; height: 12; font-size: medium; text-color: #41495b; overflow-strategy: clip; }
-
-// Central dashboard and high-contrast readability pass.
-.mermil-page-title { left: 16; right: 16; top: 52; height: 22; font-size: large; text-color: #202638; }
-.mermil-icon { left: 12; top: 6; width: 38; height: 38; }
-.mermil-title { left: 58; top: 10; width: 112; height: 16; }
-.mermil-subtitle { left: 58; top: 29; width: 100; height: 12; text-color: #3f4558; }
-.mermil-dashboard { width: 100%; height: fit-content; }
-.mermil-dashboard-card { width: 100%; height: 112; padding: 8; renderer: "Background"; background-color: #fafbfe; border-radius: 10; }
-.mermil-dashboard-open { height: 28; background-color: #dad3ed; Component { text-color: #302249; } }
-.mermil-line { height: 22; text-color: #303747; }
-.mermil-section { height: 22; font-size: medium; text-color: #302b44; }
-.mermil-row-detail { height: 18; font-size: medium; text-color: #444c60; }
-.mermil-row { height: 28; }
-.mermil-action { height: 30; }
-.mermil-status { height: 16; text-color: #41495b; }
-
-.mermil-title { width: 76; }
-.mermil-subtitle { width: 76; }
+.mermil-status { left: 12; right: 12; bottom: 6; height: 16; font-size: 1; text-color: #444d61; overflow-strategy: clip; }

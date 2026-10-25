@@ -2,7 +2,7 @@
   "namespace": "skincopy",
   "displayName": "Mermil Paradis",
   "description": "Mermil UI mit History-Vergleich, Profil-Schnellaktionen, Skin-Wiederherstellung und eigenen Einstellungen.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "author": "Mermil",
   "requiredLabyModBuild": 0,
   "releaseChannel": "release",
