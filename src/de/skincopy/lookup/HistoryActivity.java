@@ -71,14 +71,14 @@ public final class HistoryActivity extends SimpleActivity {
         super.initialize(parent);
         // Echtes Logo-Asset statt Text-Monogramm: IconWidget laedt die eigene Textur direkt.
         IconWidget brand = new IconWidget(
-                Icon.texture(ResourceLocation.create("skincopy", "textures/mermil.png")));
+                Icon.texture(addon.resource("textures/mermil.png")));
         brand.addId("mermil-icon");
         document().addChild(brand);
         addText("MERMIL", "mermil-title", NamedTextColor.LIGHT_PURPLE);
         addText("PARADIS", "mermil-subtitle", NamedTextColor.GRAY);
-        boolean playerTab = !tab.equals("skins") && !tab.equals("settings");
+        boolean playerTab = tab.equals("profile") || tab.equals("history") || tab.equals("skinHistory");
         narrow = api.minecraft().minecraftWindow().getScaledWidth() < 560;
-        headerAction("Mein Skin", "skins", "mermil-own");
+        headerAction("Startseite", "home", "mermil-own");
         headerAction("Einstellungen", "settings", "mermil-options");
         searchButton = null;
         if (playerTab) {
@@ -97,7 +97,7 @@ public final class HistoryActivity extends SimpleActivity {
             document().addChild(searchButton);
             identity();
         } else {
-            headerAction("Zum Profil", "profile", "mermil-return");
+            addText(tab.equals("home") ? "Deine Mermil-Zentrale" : tab.equals("settings") ? "Einstellungen" : "Dein Skin", "mermil-page-title", NamedTextColor.BLACK);
         }
         statusWidget = addText(status, "mermil-status", NamedTextColor.DARK_GRAY);
         VerticalListWidget<Widget> list = stack("mermil-list");
@@ -120,7 +120,8 @@ public final class HistoryActivity extends SimpleActivity {
                 columns.addContent(card); columns.addFlexibleContent(content);
                 list.addChild(columns);
             }
-        } else if (tab.equals("settings")) settings(list); else skins(list);
+        } else if (tab.equals("home")) dashboard(list);
+        else if (tab.equals("settings")) settings(list); else skins(list);
         ScrollWidget scroll = new ScrollWidget(list);
         scroll.addId("mermil-scroll", playerTab ? "mermil-player-content" : "mermil-tools-content");
         document().addChild(scroll);
@@ -203,6 +204,35 @@ public final class HistoryActivity extends SimpleActivity {
         }
         list.addChild(tabs);
     }
+    /** Central launcher: every feature is reachable without first selecting a player. */
+    private void dashboard(VerticalListWidget<Widget> list) {
+        title(list, "Alles an einem Ort");
+        line(list, "Direktzugriff: F8 im Spiel oder /mp im Chat", NamedTextColor.BLACK);
+        var grid = new net.labymod.api.client.gui.screen.widget.widgets.layout.TilesGridWidget<VerticalListWidget<Widget>>();
+        grid.addId("mermil-dashboard");
+        grid.tilesPerLine().set(api.minecraft().minecraftWindow().getScaledWidth() < 420 ? 1 : 2);
+        grid.tileHeight().set(112f);
+        grid.spaceBetweenEntries().set(10f);
+        dashboardTile(grid, "Spielerprofil", "Profil und Links", "profile");
+        dashboardTile(grid, "Namenshistorie", "Namen aus mehreren Quellen", "history");
+        dashboardTile(grid, "Skin-Historie", "Archivierte Sichtungen", "skinHistory");
+        dashboardTile(grid, "Skin uebernehmen", "Skin ansehen und anwenden", "profile");
+        dashboardTile(grid, "Mein Skin", "Sicherung und Wiederherstellung", "skins");
+        dashboardTile(grid, "Einstellungen", "Funktionen und Quellen", "settings");
+        list.addChild(grid);
+        title(list, "Aktueller Stand");
+        line(list, selectedUuid == null ? "Kein Spieler ausgewaehlt" : "Spieler: " + (selectedName == null ? selectedUuid : selectedName), NamedTextColor.BLACK);
+        line(list, addon.busy() ? "Skin-Aenderung laeuft" : "Bereit", NamedTextColor.BLACK);
+        line(list, addon.backupDescription(), NamedTextColor.BLACK);
+    }
+    private void dashboardTile(net.labymod.api.client.gui.screen.widget.widgets.layout.TilesGridWidget<VerticalListWidget<Widget>> grid,
+                               String label, String description, String target) {
+        VerticalListWidget<Widget> card = stack("mermil-dashboard-card");
+        title(card, label);
+        line(card, description, NamedTextColor.BLACK);
+        button(card, "Oeffnen", () -> switchTab(target), true).addId("mermil-dashboard-open");
+        grid.addTile(card);
+    }
     private void preview(VerticalListWidget<Widget> list) {
         title(list, "Aktueller Skin");
         if (selectedUuid != null && profileSkin != null) {
@@ -257,7 +287,7 @@ public final class HistoryActivity extends SimpleActivity {
         var grid = new net.labymod.api.client.gui.screen.widget.widgets.layout.TilesGridWidget<VerticalListWidget<Widget>>();
         grid.addId("mermil-skin-grid");
         grid.tilesPerLine().set(narrow ? 1 : 2);
-        grid.tileHeight().set(86f);
+        grid.tileHeight().set(136f);
         grid.spaceBetweenEntries().set(6f);
         for (Skin skin : result.skins()) {
             VerticalListWidget<Widget> card = stack("mermil-sighting");

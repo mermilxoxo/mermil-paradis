@@ -3,7 +3,7 @@ Document { background-color: #e9edf3; }
 Component { shadow: false; text-color: #303747; }
 .mermil-icon { left: 14; top: 12; width: 26; height: 26; object-fit: contain; }
 .mermil-title { left: 48; top: 12; width: 100; height: 14; text-color: #37324b; }
-.mermil-subtitle { left: 49; top: 28; width: 100; height: 10; font-size: small; text-color: #77758b; }
+.mermil-subtitle { left: 49; top: 28; width: 100; height: 10; font-size: medium; text-color: #77758b; }
 .mermil-header-action {
     top: 14; height: 24; renderer: "Background"; background-color: #e9edf3;
     border-radius: 7;
@@ -20,7 +20,7 @@ Component { shadow: false; text-color: #303747; }
     &:not(:enabled) { background-color: #c1b9d6; }
 }
 .mermil-identity { left: 16; right: 14; top: 86; height: 18; font-size: large; text-color: #303747; }
-.mermil-identity-sub { left: 16; right: 14; top: 108; height: 10; font-size: small; text-color: #6a7082; }
+.mermil-identity-sub { left: 16; right: 14; top: 108; height: 10; font-size: medium; text-color: #41495b; }
 .mermil-scroll { left: 8; right: 8; bottom: 26; padding: 7; background-color: 0; }
 .mermil-player-content { top: 124; }
 .mermil-tools-content { top: 80; }
@@ -36,12 +36,12 @@ Component { shadow: false; text-color: #303747; }
     &:enabled:hover { background-color: #d6dce6; }
     &.mermil-tab-active { background-color: #dcd5ee; Component { text-color: #554178; } }
 }
-.mermil-section { width: 100%; height: 18; margin-top: 6; padding-left: 5; font-size: small; text-color: #625777; }
+.mermil-section { width: 100%; height: 18; margin-top: 6; padding-left: 5; font-size: medium; text-color: #625777; }
 .mermil-line { width: 100%; height: 18; padding: 0 5; text-color: #454d60; overflow-strategy: clip; }
-.mermil-row-detail { width: 100%; height: 14; padding-left: 8; font-size: small; text-color: #697183; overflow-strategy: clip; }
+.mermil-row-detail { width: 100%; height: 14; padding-left: 8; font-size: medium; text-color: #444c60; overflow-strategy: clip; }
 .mermil-row { width: 100%; height: 24; orientation: horizontal; padding: 0 6; renderer: "Background"; background-color: #f2f4f8; border-radius: 5; }
 .mermil-row-name { alignment-y: center; overflow-strategy: clip; text-color: #303747; }
-.mermil-row-meta { alignment-y: center; margin-left: 5; max-width: 45%; overflow-strategy: clip; text-color: #697183; }
+.mermil-row-meta { alignment-y: center; margin-left: 5; max-width: 45%; overflow-strategy: clip; text-color: #444c60; }
 .mermil-copy { width: 100%; height: 100%; renderer: "Background"; background-color: 0; padding: 0;
     Component { alignment-x: left; text-color: #51426c; }
     &:enabled:hover { background-color: #e3ddef; }
@@ -62,5 +62,23 @@ Component { shadow: false; text-color: #303747; }
 .mermil-setting-label { height: 30; alignment-y: center; overflow-strategy: clip; text-color: #303747; }
 .mermil-switch { width: 42; height: 20; alignment-y: center; }
 .mermil-skin-grid { width: 100%; height: fit-content; }
-.mermil-sighting { width: 100%; height: 86; padding: 4; renderer: "Background"; background-color: #f2f4f8; border-radius: 8; }
-.mermil-status { left: 14; right: 14; bottom: 7; height: 12; font-size: small; text-color: #656c80; overflow-strategy: clip; }
+.mermil-sighting { width: 100%; height: 136; padding: 4; renderer: "Background"; background-color: #f2f4f8; border-radius: 8; }
+.mermil-status { left: 14; right: 14; bottom: 7; height: 12; font-size: medium; text-color: #41495b; overflow-strategy: clip; }
+
+// Central dashboard and high-contrast readability pass.
+.mermil-page-title { left: 16; right: 16; top: 52; height: 22; font-size: large; text-color: #202638; }
+.mermil-icon { left: 12; top: 6; width: 38; height: 38; }
+.mermil-title { left: 58; top: 10; width: 112; height: 16; }
+.mermil-subtitle { left: 58; top: 29; width: 100; height: 12; text-color: #3f4558; }
+.mermil-dashboard { width: 100%; height: fit-content; }
+.mermil-dashboard-card { width: 100%; height: 112; padding: 8; renderer: "Background"; background-color: #fafbfe; border-radius: 10; }
+.mermil-dashboard-open { height: 28; background-color: #dad3ed; Component { text-color: #302249; } }
+.mermil-line { height: 22; text-color: #303747; }
+.mermil-section { height: 22; font-size: medium; text-color: #302b44; }
+.mermil-row-detail { height: 18; font-size: medium; text-color: #444c60; }
+.mermil-row { height: 28; }
+.mermil-action { height: 30; }
+.mermil-status { height: 16; text-color: #41495b; }
+
+.mermil-title { width: 76; }
+.mermil-subtitle { width: 76; }
