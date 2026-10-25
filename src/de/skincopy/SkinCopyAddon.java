@@ -502,7 +502,7 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
 
     private final class CopySkinEntry extends AbstractBulletPoint {
         private CopySkinEntry() {
-            super(Component.text("Skin ǟ�'�Ń?Tǟ�?s�'��bernehmen", NamedTextColor.AQUA),
+            super(Component.text("Skin uebernehmen", NamedTextColor.AQUA),
                     Icon.texture(SkinCopyAddon.this.resource("textures/mermil.png")));
         }
 
