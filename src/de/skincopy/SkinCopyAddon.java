@@ -126,6 +126,12 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
         changeSkin(skin, loadedTexture, "Skin von " + playerName, false);
     }
 
+    /** Applies a validated public profile skin through the existing backup and upload flow. */
+    public void applyProfileSkin(SkinData skin) {
+        if (skin != null && Boolean.TRUE.equals(configuration().skinCopyEnabled().get()))
+            changeSkin(skin, null, "Profil-Skin", false);
+    }
+
     public UUID accountId() {
         Session session = labyAPI().minecraft().sessionAccessor().getSession();
         return session != null && session.hasUniqueId() ? session.getUniqueId() : null;
@@ -399,6 +405,17 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
                 Component.text("[Mermil Paradis] " + text, success ? NamedTextColor.AQUA : NamedTextColor.RED)));
     }
 
+    /** Opens the central UI only from gameplay so F8 never intercepts chat or text input. */
+    @Subscribe
+    public void onMenuKey(net.labymod.api.event.client.input.KeyEvent event) {
+        if (event.state() == net.labymod.api.event.client.input.KeyEvent.State.PRESS
+                && event.key() == net.labymod.api.client.gui.screen.key.Key.F8
+                && enabledNow() && !labyAPI().minecraft().minecraftWindow().isScreenOpened()) {
+            event.setCancelled(true);
+            openPanel("", null, "home");
+        }
+    }
+
     private void openHistory(String input, UUID uuid) {
         openPanel(input, uuid, "history");
     }
@@ -435,14 +452,14 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
 
     private final class ProfileEntry extends AbstractBulletPoint {
         private ProfileEntry() {
-            super(Component.text("Mermil Profil", NamedTextColor.LIGHT_PURPLE),
+            super(Component.text("Mermil Zentrale", NamedTextColor.LIGHT_PURPLE),
                     Icon.texture(SkinCopyAddon.this.resource("textures/mermil.png")));
         }
         @Override public boolean isVisible(Player player) {
-            return enabledNow() && player != null && Boolean.TRUE.equals(configuration().quickActionsEnabled().get());
+            return enabledNow() && player != null;
         }
         @Override public void execute(Player player) {
-            if (player != null) openPanel(player.getName(), player.profile().getUniqueId(), "profile");
+            if (player != null) openPanel(player.getName(), player.profile().getUniqueId(), "home");
         }
     }
     private final class RestoreEntry extends AbstractBulletPoint {
@@ -457,14 +474,15 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
     }
 
     private final class ParadisCommand extends Command {
-        private ParadisCommand() { super("mp", "mermilparadis"); }
+        private ParadisCommand() { super("mp", "mermilparadis", "mermil"); }
         @Override
         public boolean execute(String prefix, String[] arguments) {
             if (!SkinCopyAddon.this.enabledNow()) {
                 SkinCopyAddon.this.message("Addon ist deaktiviert.", false); return true;
             }
             if (arguments.length == 0 || (arguments.length == 1 && arguments[0].equalsIgnoreCase("lookup"))) {
-                SkinCopyAddon.this.openHistory("", null);
+                if (arguments.length == 0) SkinCopyAddon.this.openPanel("", null, "home");
+                else SkinCopyAddon.this.openHistory("", null);
             } else if (arguments.length == 1 && arguments[0].equalsIgnoreCase("settings")) {
                 SkinCopyAddon.this.openPanel("", null, "settings");
             } else if (arguments.length == 1 && arguments[0].equalsIgnoreCase("skins")) {
@@ -484,7 +502,7 @@ public class SkinCopyAddon extends LabyAddon<SkinCopyConfig> {
 
     private final class CopySkinEntry extends AbstractBulletPoint {
         private CopySkinEntry() {
-            super(Component.text("Skin übernehmen", NamedTextColor.AQUA),
+            super(Component.text("Skin uebernehmen", NamedTextColor.AQUA),
                     Icon.texture(SkinCopyAddon.this.resource("textures/mermil.png")));
         }
 
